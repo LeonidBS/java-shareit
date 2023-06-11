@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.dto;
+package ru.practicum.shareit.request.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @Builder
-public class ItemRequestDto {
+public class ItemRequest {
     @PositiveOrZero
     private Integer id;
 
@@ -27,4 +27,5 @@ public class ItemRequestDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate requestDate;
+
 }
