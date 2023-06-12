@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.MyValidationException;
+import ru.practicum.shareit.booking.service.BookingServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
-    private final BookingService bookingService;
+    private final BookingServiceImpl bookingService;
 
     @GetMapping
     public List<BookingDto> getAll() {
@@ -27,13 +26,9 @@ public class BookingController {
     }
 
     @GetMapping("/{id}")
-    public BookingDto getById(@PathVariable String id) {
-        try {
-            return bookingService.findById(Integer.parseInt(id));
-        } catch (NumberFormatException e) {
-            log.error("The passed ID: {} is not Integer", id);
-            throw new MyValidationException(String.format("The passed ID: %s is not Integer", id));
-        }
+    public BookingDto getById(@PathVariable Integer id) {
+
+        return bookingService.findById(id);
     }
 
     @PostMapping
@@ -49,12 +44,8 @@ public class BookingController {
     }
 
     @DeleteMapping("/{id}")
-    public Booking delete(@PathVariable String id) {
-        try {
-            return bookingService.delete(Integer.parseInt(id));
-        } catch (NumberFormatException e) {
-            log.error("The passed ID: {} is not Integer", id);
-            throw new MyValidationException(String.format("The passed ID: %s is not Integer", id));
-        }
+    public Booking delete(@PathVariable Integer id) {
+
+        return bookingService.delete(id);
     }
 }

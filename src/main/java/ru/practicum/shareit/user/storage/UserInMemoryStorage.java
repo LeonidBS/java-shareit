@@ -54,7 +54,7 @@ public class UserInMemoryStorage implements UserStorage {
     }
 
     @Override
-    public Integer isEmailNotUniq(String email) {
+    public Integer findUserByEmail(String email) {
         for (User value : users.values()) {
             if (value.getEmail().equals(email)
                     && !email.isEmpty()) {
@@ -63,5 +63,4 @@ public class UserInMemoryStorage implements UserStorage {
         }
         return null;
     }
-
 }

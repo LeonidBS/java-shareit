@@ -3,10 +3,9 @@ package ru.practicum.shareit.request.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class ItemRequestController {
-    private final ItemRequestService itemRequestService;
+    private final ItemRequestServiceImpl itemRequestService;
 
     @GetMapping
     public List<ItemRequestDto> getAll() {
@@ -27,13 +26,9 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{id}")
-    public ItemRequestDto getById(@PathVariable String id) {
-        try {
-            return itemRequestService.findById(Integer.parseInt(id));
-        } catch (NumberFormatException e) {
-            log.error("The passed ID: {} is not Integer", id);
-            throw new MyValidationException(String.format("The passed ID: %s is not Integer", id));
-        }
+    public ItemRequestDto getById(@PathVariable Integer id) {
+
+        return itemRequestService.findById(id);
     }
 
     @PostMapping
@@ -49,12 +44,8 @@ public class ItemRequestController {
     }
 
     @DeleteMapping("/{id}")
-    public ItemRequest delete(@PathVariable String id) {
-        try {
-            return itemRequestService.delete(Integer.parseInt(id));
-        } catch (NumberFormatException e) {
-            log.error("The passed ID: {} is not Integer", id);
-            throw new MyValidationException(String.format("The passed ID: %s is not Integer", id));
-        }
+    public ItemRequest delete(@PathVariable Integer id) {
+
+        return itemRequestService.delete(id);
     }
 }

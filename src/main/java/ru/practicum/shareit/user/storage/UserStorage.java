@@ -17,5 +17,5 @@ public interface UserStorage {
 
     User delete(Integer id);
 
-    Integer isEmailNotUniq(String email);
+    Integer findUserByEmail(String email);
 }
