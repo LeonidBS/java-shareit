@@ -1,42 +1,53 @@
 package ru.practicum.shareit.booking.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 /**
  * TODO Sprint add-bookings.
  */
 
+@Entity
+@Table(name = "Bookings")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
+@ToString
 public class Booking {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PositiveOrZero
     private Integer id;
 
+    @Column(name = "start_date", nullable = false)
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startBookingDate;
+    private LocalDate startDate;
 
+    @Column(name = "end_date")
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endBookingDate;
+    private LocalDate endDate;
 
-    @Size(max = 200, message = "Длина описания превышает максимально допустиму 200 символов")
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    @ToString.Exclude
+    private Item item;
 
-    @PositiveOrZero
-    private Integer itemId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    private User booker;
 
-    @PositiveOrZero
-    private Integer bookerId;
-
+    @Column(nullable = false)
     private BookingStatus status;
-
-
 }

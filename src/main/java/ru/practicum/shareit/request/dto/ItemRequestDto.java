@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
@@ -22,8 +23,9 @@ public class ItemRequestDto {
     @Size(max = 200, message = "length of description is more then 200 symbols")
     private String description;
 
-    @PositiveOrZero
-    private Integer requestorId;
+    @NotBlank
+    @Size(max = 200, message = "length of description is more then 200 symbols")
+    private String requestorName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate requestDate;

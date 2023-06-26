@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserMapper {
-    public static UserDto toUserDto(User user) {
+    public static UserDto mapToUserDto(User user) {
         return new UserDto(
                 user.getId(),
                 user.getName(),
@@ -14,10 +14,18 @@ public class UserMapper {
         );
     }
 
-    public static List<UserDto> listToUserDto(List<User> users) {
+    public static User mapToUser(UserDto userDto) {
+        return new User(
+                userDto.getId(),
+                userDto.getName(),
+                userDto.getEmail()
+        );
+    }
+
+        public static List<UserDto> mapListToUserDto(List<User> users) {
         List<UserDto> usersDto = new ArrayList<>();
         for (User user : users) {
-            usersDto.add(toUserDto(user));
+            usersDto.add(mapToUserDto(user));
         }
         return usersDto;
     }

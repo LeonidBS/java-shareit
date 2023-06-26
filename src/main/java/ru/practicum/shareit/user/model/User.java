@@ -1,28 +1,35 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
+import javax.persistence.*;
+import javax.validation.constraints.*;
 
 /**
  * TODO Sprint add-controllers.
  */
+@Entity
+@Table(name = "users", schema = "public")
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PositiveOrZero
     private Integer id;
 
+    @Column
     @NotBlank(message = "Parameter name is empty")
+    @Size(max = 200, message = "length of name is more then 200 symbols")
     private String name;
 
+    @Column
     @NotBlank(message = "Email has not been passed")
+    @Size(max = 320, message = "length of email is more then 320 symbols")
     @Email(message = "Format the passed email is wrong")
     @Pattern(regexp = "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
             message = "Email")

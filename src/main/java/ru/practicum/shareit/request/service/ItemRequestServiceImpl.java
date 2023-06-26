@@ -8,17 +8,17 @@ import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.storage.ItemRequestStorage;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 
 import java.util.List;
 
 @Slf4j
 @Service
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private final ItemRequestStorage itemRequestStorage;
+    private final ItemRequestRepository itemRequestStorage;
 
     @Autowired
-    public ItemRequestServiceImpl(@Qualifier("inMemory") ItemRequestStorage itemRequestStorage) {
+    public ItemRequestServiceImpl(@Qualifier("inMemory") ItemRequestRepository itemRequestStorage) {
         this.itemRequestStorage = itemRequestStorage;
     }
 
@@ -35,7 +35,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new IdNotFoundException("There is no User with ID: " + id);
         }
 
-        return ItemRequestMapper.toItemRequestDto(itemRequest);
+        return ItemRequestMapper.MapToItemRequestDto(itemRequest);
     }
 
     @Override

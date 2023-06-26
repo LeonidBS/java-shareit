@@ -2,12 +2,13 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.booking.model.SearchBookingStatus;
+import ru.practicum.shareit.booking.service.BookingDbService;
+import ru.practicum.shareit.validation.ValidationGroups;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -17,35 +18,58 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
+@Validated
 public class BookingController {
-    private final BookingServiceImpl bookingService;
+    private final BookingDbService bookingService;
 
     @GetMapping
-    public List<BookingDto> getAll() {
-        return bookingService.findAll();
+    public List<BookingDto> findAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer bookerId,
+                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
+        int from = 0;
+        int size = 10;
+
+        return bookingService.findAllByBookerIdAndStatus(bookerId, state, from, size);
     }
 
-    @GetMapping("/{id}")
-    public BookingDto getById(@PathVariable Integer id) {
+    @GetMapping("/owner")
+    public List<BookingDto> findAllByOwnerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+                                                      @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
+        int from = 0;
+        int size = 10;
 
-        return bookingService.findById(id);
+        return bookingService.findAllByOwnerIdAndStatus(ownerId, state, from, size);
+    }
+
+    @GetMapping("/{bookingId}")
+    public BookingDto getById(@PathVariable Integer bookingId,
+                              @RequestHeader("X-Sharer-User-Id") Integer userId) {
+
+        return bookingService.findById(bookingId, userId);
     }
 
     @PostMapping
-    public Booking create(@Valid @RequestBody Booking booking) {
+    public BookingDto create(@RequestBody @Validated(ValidationGroups.Create.class) BookingDto bookingDto,
+                             @RequestHeader("X-Sharer-User-Id") Integer bookerId) {
 
-        return bookingService.create(booking);
+        return bookingService.create(bookingDto, bookerId);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto update(@PathVariable Integer bookingId, @RequestParam Boolean approved,
+                             @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
+
+        return bookingService.updateApproving(bookingId, approved, ownerId);
     }
 
     @PutMapping
-    public Booking update(@Valid @RequestBody Booking booking) {
+    public BookingDto update(@RequestBody @Validated(ValidationGroups.Create.class) BookingDto bookingDto) {
 
-        return bookingService.update(booking);
+        return bookingService.update(bookingDto);
     }
 
     @DeleteMapping("/{id}")
-    public Booking delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Integer id) {
 
-        return bookingService.delete(id);
+        bookingService.delete(id);
     }
 }

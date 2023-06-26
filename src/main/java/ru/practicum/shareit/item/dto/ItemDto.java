@@ -8,6 +8,7 @@ import ru.practicum.shareit.validation.ValidationGroups;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 
 /**
  * TODO Sprint add-controllers.
@@ -32,7 +33,7 @@ public class ItemDto {
             groups = ValidationGroups.Create.class)
     private Boolean available;
 
-    private Integer itemRequestId;
+    private LocalDate requestDate;
 
     private Integer bookingQuantity;
 }

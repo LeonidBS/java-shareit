@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 /**
@@ -17,24 +17,27 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class BookingDto {
+
     @PositiveOrZero
     private Integer id;
 
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startBookingDate;
+    private LocalDate startDate;
 
+    @FutureOrPresent
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endBookingDate;
+    private LocalDate endDate;
 
-    @Size(max = 200, message = "Длина описания превышает максимально допустиму 200 символов")
-    private String description;
-
-    @PositiveOrZero
     private Integer itemId;
 
-    @PositiveOrZero
-    private Integer bookerId;
+    private String itemName;
+
+    private String itemOwnerName;
+
+    private String bookerName;
+
+    private String bookerEmail;
 
     private BookingStatus status;
-
 }

@@ -1,11 +1,12 @@
 package ru.practicum.shareit.item.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.Valid;
@@ -15,16 +16,23 @@ import java.util.List;
  * TODO Sprint add-controllers.
  */
 @Slf4j
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 @Validated
 public class ItemController {
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
+
+    @Autowired
+    public ItemController(@Qualifier("dbService") ItemService itemService) {
+        this.itemService = itemService;
+    }
 
     @GetMapping
-    public List<ItemDto> getOwnerAll(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
-        return itemService.findOwnerAll(ownerId);
+    public List<ItemDto> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer userId) {
+        int from = 0;
+        int size = 10;
+
+        return itemService.findAllByOwnerId(userId, from, size);
     }
 
     @GetMapping("/{id}")
@@ -35,8 +43,9 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> getBySearchText(@RequestParam(required = false) String text) {
-
-        return itemService.findBySearchText(text);
+        int from = 0;
+        int size = 10;
+        return itemService.findBySearchText(text, from, size);
     }
 
     @PostMapping

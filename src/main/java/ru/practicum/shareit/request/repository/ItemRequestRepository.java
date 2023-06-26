@@ -1,10 +1,10 @@
-package ru.practicum.shareit.request.storage;
+package ru.practicum.shareit.request.repository;
 
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
 
-public interface ItemRequestStorage {
+public interface ItemRequestRepository {
 
     List<ItemRequest> findAll();
 
