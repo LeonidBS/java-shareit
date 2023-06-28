@@ -1,14 +1,14 @@
 package ru.practicum.shareit.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.FutureOrPresent;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-bookings.
@@ -30,13 +30,15 @@ public class Booking {
 
     @Column(name = "start_date", nullable = false)
     @FutureOrPresent
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate startDate;
+    @NotNull(message = "Parameter startDate is NULL")
+  //  @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
+    private LocalDateTime start;
 
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     @FutureOrPresent
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate endDate;
+    @NotNull(message = "Parameter endDate is NULL")
+ //   @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
+    private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
@@ -48,6 +50,7 @@ public class Booking {
     @ToString.Exclude
     private User booker;
 
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 16)
     private BookingStatus status;
 }

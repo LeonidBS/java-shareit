@@ -13,16 +13,24 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class ItemMapper {
+public class ItemMapperWithBookings {
     private final BookingDbService bookingService;
 
-    public ItemDto mapToItemDto(Item item) {
+    public ItemDtoWithBookings mapToItemDto(Item item, Integer userId) {
 
-        return new ItemDto(
+        return new ItemDtoWithBookings(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
+                item.getOwner() != null ?
+                        item.getOwner().getId().equals(userId) ?
+                                bookingService.findLastBookingByItemId(item.getId()) : null
+                        : null,
+                item.getOwner() != null ?
+                        item.getOwner().getId().equals(userId) ?
+                                bookingService.findNextBookingByItemId(item.getId()) : null
+                        : null,
                 item.getOwner().getId(),
                 item.getOwner().getName(),
                 item.getItemRequest() != null ?
@@ -42,11 +50,12 @@ public class ItemMapper {
         );
     }
 
-    public List<ItemDto> mapListToItemDto(List<Item> items) {
-        List<ItemDto> itemsDto = new ArrayList<>();
+    public List<ItemDtoWithBookings> mapListToItemDto(List<Item> items, Integer userId) {
+        List<ItemDtoWithBookings> itemDtoWithBookings = new ArrayList<>();
         for (Item item : items) {
-            itemsDto.add(mapToItemDto(item));
+            itemDtoWithBookings.add(mapToItemDto(item, userId));
         }
-        return itemsDto;
+        return itemDtoWithBookings;
     }
 }
+

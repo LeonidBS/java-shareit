@@ -28,6 +28,7 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+			<version>42.3.8</version>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -65,16 +66,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>42.3.8</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
 			<version>5.0.0</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

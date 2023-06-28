@@ -47,7 +47,6 @@ public class UserDbService implements UserService {
     @Transactional
     public UserDto create(UserDto userDto) {
 
-
         User user = User.builder()
                 .name(userDto.getName())
                 .email(userDto.getEmail())
@@ -99,7 +98,7 @@ public class UserDbService implements UserService {
     public void deleteById(Integer id) {
         PageRequest page = PageRequest.of(0, 1);
 
-        if (itemRepository.findAllByUserId(id, page).toList().size()!=0) {
+        if (itemRepository.findByOwnerIdOrderById(id, page).toList().size()!=0) {
             itemRepository.updateItemsAsIsNotAvailableByUserId(id);
         }
         userRepository.deleteById(id);

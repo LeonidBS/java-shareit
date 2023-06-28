@@ -9,7 +9,9 @@ import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemMapperWithBookings;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemInMemoryRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -29,27 +31,30 @@ public class ItemInMemoryService implements ItemService {
     private final ItemInMemoryRepository itemInMemoryRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
+    private final ItemMapperWithBookings itemMapperWithBookings;
 
     @Autowired
     public ItemInMemoryService(ItemInMemoryRepository itemInMemoryRepository,
                                @Qualifier("dbService") UserService userService,
-                               ItemMapper itemMapper) {
+                               ItemMapper itemMapper, ItemMapperWithBookings itemMapperWithBookings) {
         this.itemInMemoryRepository = itemInMemoryRepository;
         this.userService = userService;
         this.itemMapper = itemMapper;
+        this.itemMapperWithBookings = itemMapperWithBookings;
     }
 
     @Override
-    public List<ItemDto> findAllByOwnerId(Integer ownerId, int from, int size) {
+    public List<ItemDtoWithBookings> findAllByOwnerId(Integer ownerId, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         userService.findById(ownerId);
 
-        return itemMapper.mapListToItemDto(itemInMemoryRepository.findAllByUserId(ownerId, page).toList());
+        return itemMapperWithBookings.mapListToItemDto(itemInMemoryRepository.findAllByUserId(ownerId, page).toList(),
+                ownerId);
     }
 
     @Override
-    public ItemDto findById(Integer id) {
+    public ItemDtoWithBookings findByIdWithOwnerValidation(Integer id, Integer userId) {
         Optional<Item> optionalItem = itemInMemoryRepository.findById(id);
 
         if (optionalItem.isEmpty()) {
@@ -57,7 +62,7 @@ public class ItemInMemoryService implements ItemService {
             throw new IdNotFoundException("There is no Item with ID: " + id);
         }
 
-        return itemMapper.mapToItemDto(optionalItem.get());
+        return itemMapperWithBookings.mapToItemDto(optionalItem.get(), userId);
     }
 
     @Override

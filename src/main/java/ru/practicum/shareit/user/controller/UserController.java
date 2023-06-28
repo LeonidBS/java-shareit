@@ -12,9 +12,6 @@ import ru.practicum.shareit.validation.ValidationGroups;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
@@ -29,6 +26,9 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> getAll() {
+     /*
+     Поскольку в запросе пока нет таких параметров
+     */
         int from = 0;
         int size = 10;
         return userService.findAll(from, size);

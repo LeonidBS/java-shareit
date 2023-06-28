@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.IdNotFoundException;
-import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.dto.ItemMapperWithBookings;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -30,34 +31,38 @@ public class ItemDbService implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
+    private final ItemMapperWithBookings itemMapperWithBookings;
 
     public ItemDbService(ItemRepository itemRepository,
                          @Qualifier("dbService") UserService userService,
-                         ItemMapper itemMapper) {
+                         ItemMapper itemMapper,
+                         ItemMapperWithBookings itemMapperWithBookings) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.itemMapper = itemMapper;
+        this.itemMapperWithBookings = itemMapperWithBookings;
     }
 
     @Override
-    public List<ItemDto> findAllByOwnerId(Integer userId, int from, int size) {
+    public List<ItemDtoWithBookings> findAllByOwnerId(Integer ownerId, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
 
-        userService.findById(userId);
+        userService.findById(ownerId);
 
-        return itemMapper.mapListToItemDto(itemRepository.findAllByUserId(userId, page).toList());
+        return itemMapperWithBookings.mapListToItemDto(itemRepository.findByOwnerIdOrderById(ownerId, page).toList(),
+                ownerId);
     }
 
     @Override
-    public ItemDto findById(Integer id) {
+    public ItemDtoWithBookings findByIdWithOwnerValidation(Integer id, Integer userId) {
+        userService.findById(userId);
         Optional<Item> optionalItem = itemRepository.findById(id);
 
         if (optionalItem.isEmpty()) {
             log.error("Item with ID {} has not been found", id);
             throw new IdNotFoundException("There is no Item with ID: " + id);
         }
-
-        return itemMapper.mapToItemDto(optionalItem.get());
+            return itemMapperWithBookings.mapToItemDto(optionalItem.get(), userId);
     }
 
     @Override
@@ -76,11 +81,6 @@ public class ItemDbService implements ItemService {
     @Override
     public ItemDto create(ItemDto itemDto, Integer ownerId) {
         User owner = UserMapper.mapToUser(userService.findById(ownerId));
-
-        if (itemDto.getAvailable() == null) {
-            log.error("Available is NULL");
-            throw new MyValidationException("Available is NULL");
-        }
 
         @Valid Item item = Item.builder()
                 .name(itemDto.getName())

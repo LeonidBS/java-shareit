@@ -10,35 +10,16 @@ import ru.practicum.shareit.item.model.Item;
 
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
-    @Query(value = "SELECT item " +
-            "FROM Item AS item " +
-            //   "JOIN FETCH item.user " +
-            "LEFT JOIN item.itemRequest " +
-            "LEFT JOIN item.owner o " +
-            "WHERE o.id = ?1 ")
-//            "ORDER BY ?#{#pageable}",
-//            countQuery = "SELECT COUNT(item) " +
-//                    "FROM Item AS item " +
-//                    "JOIN FETCH item.user " +
-//                    "WHERE item.id = ?1 ",
-        //          nativeQuery = true
-        //   )
-    Page<Item> findAllByUserId(Integer userId, Pageable page);
 
-    @Query(value = "SELECT item " +
+    Page<Item> findByOwnerIdOrderById (Integer ownerId, Pageable page);
+
+    @Query("SELECT item " +
             "FROM Item AS item " +
             "LEFT JOIN item.owner " +
             "LEFT JOIN item.itemRequest " +
             "WHERE (LOWER(item.name) LIKE LOWER(CONCAT('%', ?1, '%')) " +
             "OR LOWER(item.description) LIKE LOWER(CONCAT('%', ?1, '%'))) " +
             "AND item.available = TRUE")
-//            "ORDER BY ?#{#pageable}",
-//            countQuery = "SELECT COUNT(*) " +
-//                    "FROM Item AS item " +
-//                    "JOIN FETCH item.user AS u " +
-//                    "WHERE (LOWER(item.name) LIKE LOWER(?1) OR LOWER(item.description) LIKE LOWER(?1)) " +
-//                    "AND item.available = TRUE",
-//            nativeQuery = true)
     Page<Item> findBySearchText(String text, Pageable page);
 
     @Modifying

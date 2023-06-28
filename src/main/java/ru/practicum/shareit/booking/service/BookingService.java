@@ -2,6 +2,9 @@ package ru.practicum.shareit.booking.service;
 
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.booking.dto.BookingDtoInput;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
 
 import java.util.List;
@@ -12,14 +15,19 @@ public interface BookingService {
 
     List<BookingDto> findAllByOwnerIdAndStatus(Integer ownerId, SearchBookingStatus state, Integer from, Integer size);
 
-    List<BookingDto> findByStatusAndItemId(Integer itemId);
-    BookingDto findById(Integer bookingId, Integer userId);
+    BookingDto findByIdWithValidation(Integer bookingId, Integer userId);
 
-    BookingDto create(BookingDto bookingDto, Integer bookerId);
+    BookingDtoForItem findLastBookingByItemId(Integer itemId);
 
-    BookingDto updateApproving(Integer bookingId, Boolean approved, Integer ownerId);
+    BookingDtoForItem findNextBookingByItemId(Integer itemId);
 
-    BookingDto update(BookingDto bookingDto);
+    BookingDto create(BookingDtoInput bookingDtoInput, Integer bookerId);
+
+    BookingDto patchBooking(Integer bookingId, Boolean approved, Integer ownerId);
+
+    BookingDto update(BookingDtoInput bookingDtoInput);
 
     void delete(Integer id);
+
+    Integer quantityBookingByStatusAndItemId(BookingStatus status, Integer itemId);
 }
