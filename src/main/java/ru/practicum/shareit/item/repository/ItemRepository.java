@@ -11,6 +11,13 @@ import ru.practicum.shareit.item.model.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
 
+    @Query("SELECT item " +
+            "FROM Item AS item " +
+            "LEFT JOIN FETCH item.owner o " +
+            "LEFT JOIN FETCH item.itemRequest r " +
+            "WHERE item.id = ?1")
+    Item findByIdFetch(Integer id);
+
     Page<Item> findByOwnerIdOrderById(Integer ownerId, Pageable page);
 
     @Query("SELECT item " +

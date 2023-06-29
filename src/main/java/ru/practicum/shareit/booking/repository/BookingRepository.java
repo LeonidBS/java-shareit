@@ -45,7 +45,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Integer countByStatusAndItemId(BookingStatus status, Integer itemId);
 
-    BookingDtoForItem findFirstBookingByItemIdAndStatusAndEndLessThanOrderByEndDesc(
+    BookingDtoForItem findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
             Integer itemId, BookingStatus status, LocalDateTime currentTme);
 
     BookingDtoForItem findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(

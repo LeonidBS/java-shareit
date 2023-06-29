@@ -39,8 +39,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithComments getById(@PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
-                                       @RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public ItemDtoWithComments findById(@PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
+                                        @RequestHeader("X-Sharer-User-Id") Integer userId) {
 
         return itemService.findByIdWithOwnerValidation(itemId, userId);
     }

@@ -1,5 +1,3 @@
-
-
 CREATE TABLE IF NOT EXISTS users
 (
     id    INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -15,7 +13,7 @@ CREATE TABLE IF NOT EXISTS item_requests
     user_id      INT,
     CONSTRAINT fk_item_requests_to_users
         FOREIGN KEY (user_id) REFERENCES users (id),
-    request_date timestamp without time zone
+    requested timestamp without time zone
 );
 
 CREATE TABLE IF NOT EXISTS items
@@ -28,7 +26,7 @@ CREATE TABLE IF NOT EXISTS items
     CONSTRAINT fk_items_to_users
         FOREIGN KEY (user_id) REFERENCES users (id),
     request_id  INT,
-    CONSTRAINT fk_items_to_item_requests
+    CONSTRAINT fk_requests_to_users
         FOREIGN KEY (request_id) REFERENCES item_requests (id)
 );
 
@@ -48,14 +46,13 @@ CREATE TABLE IF NOT EXISTS bookings
 
 CREATE TABLE IF NOT EXISTS comments
 (
-    id          INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    text        text,
-    item_id    INT,
+    id      INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    text    text,
+    item_id INT,
     CONSTRAINT fk_comments_to_items
         FOREIGN KEY (item_id) REFERENCES items (id),
-    user_id     INT,
+    user_id INT,
     CONSTRAINT fk_comments_to_users
         FOREIGN KEY (user_id) REFERENCES users (id),
-    request_id  INT,
     created timestamp without time zone
 );

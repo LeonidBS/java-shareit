@@ -71,7 +71,9 @@ public class ItemInMemoryService implements ItemService {
             throw new IdNotFoundException("There is no Item with ID: " + id);
         }
 
-        return itemMapperWithComments.mapToItemDto(optionalItem.get(), userId);
+        return itemMapperWithComments.mapToItemDto(optionalItem.get(),
+                optionalItem.get().getOwner(),
+                optionalItem.get().getItemRequest(), userId);
     }
 
     @Override

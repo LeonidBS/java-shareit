@@ -246,7 +246,7 @@ public class BookingDbService implements BookingService {
     public BookingDtoForItem findLastBookingByItemId(Integer itemId) {
 
         return bookingRepository
-                .findFirstBookingByItemIdAndStatusAndEndLessThanOrderByEndDesc(
+                .findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
                         itemId,
                         BookingStatus.APPROVED,
                         LocalDateTime.now());

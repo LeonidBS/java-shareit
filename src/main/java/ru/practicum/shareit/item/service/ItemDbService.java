@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -65,21 +67,24 @@ public class ItemDbService implements ItemService {
 
         userService.findById(ownerId);
 
-        return itemMapperWithComments.mapListToItemDto(itemRepository.findByOwnerIdOrderById(ownerId, page).toList(),
+        return itemMapperWithComments.mapListToItemDto(itemRepository
+                        .findByOwnerIdOrderById(ownerId, page).toList(),
                 ownerId);
     }
 
     @Override
+    @Fetch(FetchMode.JOIN)
     public ItemDtoWithComments findByIdWithOwnerValidation(Integer id, Integer userId) {
         userService.findById(userId);
-        Optional<Item> optionalItem = itemRepository.findById(id);
 
-        if (optionalItem.isEmpty()) {
+        Item item = itemRepository.findByIdFetch(id);
+        if (item == null) {
             log.error("Item with ID {} has not been found", id);
             throw new IdNotFoundException("There is no Item with ID: " + id);
         }
 
-        return itemMapperWithComments.mapToItemDto(optionalItem.get(), userId);
+        return itemMapperWithComments.mapToItemDto(item, item.getOwner(),
+                item.getItemRequest(), userId);
     }
 
     @Override

@@ -7,6 +7,8 @@ import ru.practicum.shareit.booking.service.BookingDbService;
 import ru.practicum.shareit.comment.dto.CommentMapperForItem;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,7 @@ public class ItemMapperWithComments {
     private final BookingDbService bookingService;
     private final CommentRepository commentRepository;
 
-    public ItemDtoWithComments mapToItemDto(Item item, Integer userId) {
+    public ItemDtoWithComments mapToItemDto(Item item, User owner, ItemRequest request, Integer userId) {
 
         ItemDtoWithComments itemDtoWithComments;
         if (item.getOwner() != null) {
@@ -26,16 +28,16 @@ public class ItemMapperWithComments {
                     item.getName(),
                     item.getDescription(),
                     item.getAvailable(),
-                    item.getOwner().getId().equals(userId) ?
+                    owner.getId().equals(userId) ?
                             bookingService.findLastBookingByItemId(item.getId()) : null,
-                    item.getOwner().getId().equals(userId) ?
+                    owner.getId().equals(userId) ?
                             bookingService.findNextBookingByItemId(item.getId()) : null,
                     CommentMapperForItem.mapListToDto(commentRepository
                             .findByItemId(item.getId())),
-                    item.getOwner().getId(),
-                    item.getOwner().getName(),
-                    item.getItemRequest() != null ?
-                            item.getItemRequest().getRequestDate() : null,
+                    owner.getId(),
+                    owner.getName(),
+                    request != null ?
+                            request.getRequestDate() : null,
                     bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
             );
         } else {
@@ -63,7 +65,8 @@ public class ItemMapperWithComments {
         List<ItemDtoWithComments> itemDtoWithCommentsList = new ArrayList<>();
 
         for (Item item : items) {
-            itemDtoWithCommentsList.add(mapToItemDto(item, userId));
+            itemDtoWithCommentsList.add(mapToItemDto(item, item.getOwner(),
+                    item.getItemRequest(), userId));
         }
 
         return itemDtoWithCommentsList;

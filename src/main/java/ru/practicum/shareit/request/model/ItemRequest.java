@@ -15,7 +15,7 @@ import java.time.LocalDate;
  */
 
 @Entity
-@Table(name = "items")
+@Table(name = "item_requests")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -39,7 +39,7 @@ public class ItemRequest {
     @NotNull(message = "Parameter name is NULL")
     private User requestor;
 
-    @Column(name = "request_date")
+    @Column(name = "requested")
     @NotNull(message = "Parameter name is NULL")
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate requestDate;
