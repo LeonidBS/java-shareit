@@ -23,17 +23,15 @@ public class BookingDtoInput {
 
     @FutureOrPresent
     @NotNull(message = "Parameter startDate is NULL")
-    //   @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime start;
 
     @FutureOrPresent
     @NotNull(message = "Parameter endDate is NULL")
-    // @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime end;
 
     private BookingStatus status;
 
     private Integer bookerId;
 
-    private Integer ItemId;
+    private Integer itemId;
 }

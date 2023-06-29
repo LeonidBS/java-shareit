@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentDtoInput;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
@@ -26,7 +28,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithBookings> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
+    public List<ItemDtoWithComments> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
      /*
      Поскольку в запросе пока нет таких параметров
      */
@@ -37,7 +39,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoWithBookings getById(@PathVariable Integer itemId,
+    public ItemDtoWithComments getById(@PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
                                        @RequestHeader("X-Sharer-User-Id") Integer userId) {
 
         return itemService.findByIdWithOwnerValidation(itemId, userId);
@@ -58,6 +60,15 @@ public class ItemController {
                           @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
 
         return itemService.create(itemDto, ownerId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(
+            @RequestBody @Validated(ValidationGroups.Create.class) CommentDtoInput commentDtoInput,
+            @PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
+            @RequestHeader("X-Sharer-User-Id") Integer userId) {
+
+        return itemService.createComment(commentDtoInput, itemId, userId);
     }
 
     @PatchMapping("/{id}")

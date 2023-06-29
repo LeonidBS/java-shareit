@@ -5,19 +5,29 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentDtoInput;
+import ru.practicum.shareit.comment.dto.CommentMapper;
+import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.IdNotFoundException;
+import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemMapperWithBookings;
+import ru.practicum.shareit.item.dto.ItemMapperWithComments;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,30 +41,36 @@ public class ItemDbService implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
-    private final ItemMapperWithBookings itemMapperWithBookings;
+    private final ItemMapperWithComments itemMapperWithComments;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     public ItemDbService(ItemRepository itemRepository,
                          @Qualifier("dbService") UserService userService,
                          ItemMapper itemMapper,
-                         ItemMapperWithBookings itemMapperWithBookings) {
+                         ItemMapperWithComments itemMapperWithComments,
+                         CommentRepository commentRepository,
+                         BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userService = userService;
         this.itemMapper = itemMapper;
-        this.itemMapperWithBookings = itemMapperWithBookings;
+        this.itemMapperWithComments = itemMapperWithComments;
+        this.commentRepository = commentRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
-    public List<ItemDtoWithBookings> findAllByOwnerId(Integer ownerId, int from, int size) {
+    public List<ItemDtoWithComments> findAllByOwnerId(Integer ownerId, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         userService.findById(ownerId);
 
-        return itemMapperWithBookings.mapListToItemDto(itemRepository.findByOwnerIdOrderById(ownerId, page).toList(),
+        return itemMapperWithComments.mapListToItemDto(itemRepository.findByOwnerIdOrderById(ownerId, page).toList(),
                 ownerId);
     }
 
     @Override
-    public ItemDtoWithBookings findByIdWithOwnerValidation(Integer id, Integer userId) {
+    public ItemDtoWithComments findByIdWithOwnerValidation(Integer id, Integer userId) {
         userService.findById(userId);
         Optional<Item> optionalItem = itemRepository.findById(id);
 
@@ -62,7 +78,8 @@ public class ItemDbService implements ItemService {
             log.error("Item with ID {} has not been found", id);
             throw new IdNotFoundException("There is no Item with ID: " + id);
         }
-            return itemMapperWithBookings.mapToItemDto(optionalItem.get(), userId);
+
+        return itemMapperWithComments.mapToItemDto(optionalItem.get(), userId);
     }
 
     @Override
@@ -126,5 +143,40 @@ public class ItemDbService implements ItemService {
         log.debug("ItemRequest has been updated: {}", item);
 
         return itemMapper.mapToItemDto(item);
+    }
+
+    @Transactional
+    @Override
+    public CommentDto createComment(CommentDtoInput commentDtoInput, Integer itemId, Integer userId) {
+        UserDto userDto = userService.findById(userId);
+        Optional<Item> optionalItem = itemRepository.findById(itemId);
+
+        if (optionalItem.isEmpty()) {
+            log.error("Item with ID {} is not exist", itemId);
+            throw new IdNotFoundException("There is not Item with ID " + itemId);
+        }
+        if (bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(
+                userId, itemId, BookingStatus.APPROVED, LocalDateTime.now()) == 0) {
+            log.error("User with ID {} cannot comment Item with ID {}", userId, itemId);
+            throw new MyValidationException("User with ID " + userId +
+                    " cannot comment Item with ID " + itemId);
+        }
+
+        if (commentDtoInput.getCreated() == null) {
+            commentDtoInput.setCreated(LocalDateTime.now());
+        }
+
+        @Valid Comment comment = Comment.builder()
+                .text(commentDtoInput.getText())
+                .item(optionalItem.get())
+                .author(UserMapper.mapToUser(userDto))
+                .created(commentDtoInput.getCreated() == null ?
+                        LocalDateTime.now() : commentDtoInput.getCreated())
+                .build();
+
+        commentRepository.save(comment);
+        log.debug("Comment has been created: {}", comment);
+
+        return CommentMapper.mapToDto(comment);
     }
 }

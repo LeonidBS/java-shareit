@@ -35,7 +35,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new IdNotFoundException("There is no User with ID: " + id);
         }
 
-        return ItemRequestMapper.MapToItemRequestDto(itemRequest);
+        return ItemRequestMapper.mapToItemRequestDto(itemRequest);
     }
 
     @Override

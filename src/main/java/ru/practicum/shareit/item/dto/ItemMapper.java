@@ -5,8 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingDbService;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,17 +26,6 @@ public class ItemMapper {
                 item.getItemRequest() != null ?
                         item.getItemRequest().getRequestDate() : null,
                 bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
-        );
-    }
-
-    public Item mapToItem(ItemDto itemDto, User user, ItemRequest itemRequest) {
-        return new Item(
-                itemDto.getId(),
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                user,
-                itemRequest
         );
     }
 

@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
-import javax.validation.constraints.FutureOrPresent;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 /**
@@ -18,17 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingDtoForItem {
 
-    @PositiveOrZero
     private Integer id;
 
-    @FutureOrPresent
-    @NotNull(message = "Parameter startDate is NULL")
- //   @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime start;
 
-    @FutureOrPresent
-    @NotNull(message = "Parameter endDate is NULL")
-   // @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime end;
 
     private BookingStatus status;

@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -14,7 +13,6 @@ import java.util.*;
 
 @Slf4j
 @Component
-@Qualifier("inMemory")
 @RequiredArgsConstructor
 public class UserInMemoryRepository {
     private final Map<Integer, User> users = new HashMap<>();

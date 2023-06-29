@@ -31,7 +31,7 @@ public class User {
     @NotBlank(message = "Email has not been passed")
     @Size(max = 320, message = "length of email is more then 320 symbols")
     @Email(message = "Format the passed email is wrong")
-    @Pattern(regexp = "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
+    @Pattern(regexp = "^([a-zA-Z0-9_\\-]+)@([a-zA-Z0-9_\\-]+)\\.([a-zA-Z]{2,5})$",
             message = "Email")
     private String email;
 

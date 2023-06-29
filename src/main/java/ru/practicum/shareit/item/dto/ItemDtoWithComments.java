@@ -4,17 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @Builder
-public class ItemDtoWithBookings {
+public class ItemDtoWithComments {
     private Integer id;
 
     @NotBlank(message = "Parameter name is empty",
@@ -34,6 +36,8 @@ public class ItemDtoWithBookings {
     private BookingDtoForItem lastBooking;
 
     private BookingDtoForItem nextBooking;
+
+    private List<CommentDtoForItem> comments;
 
     private Integer ownerId;
 

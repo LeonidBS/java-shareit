@@ -11,7 +11,7 @@ import ru.practicum.shareit.item.model.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
 
-    Page<Item> findByOwnerIdOrderById (Integer ownerId, Pageable page);
+    Page<Item> findByOwnerIdOrderById(Integer ownerId, Pageable page);
 
     @Query("SELECT item " +
             "FROM Item AS item " +
@@ -26,5 +26,5 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     @Query("UPDATE Item item " +
             "SET item.available=false, item.owner=null " +
             "WHERE item.owner.id = ?1 ")
-    void updateItemsAsIsNotAvailableByUserId(Integer UserId);
+    void updateItemsAsIsNotAvailableByUserId(Integer userId);
 }

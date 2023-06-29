@@ -59,7 +59,9 @@ public class BookingDbService implements BookingService {
                         .findByBookerIdOrderByStartDesc(bookerId, page).toList());
             case CURRENT:
                 return BookingMapper.mapListToBookingDto(bookingRepository
-                        .findCurrentByBookerId(bookerId, page).toList());
+                        .findByBookerIdAndStartLessThanAndEndGreaterThanOrderByEndDesc(
+                                bookerId, LocalDateTime.now(),
+                                LocalDateTime.now(), page).toList());
             case PAST:
                 return BookingMapper.mapListToBookingDto(bookingRepository
                         .findByBookerIdAndEndLessThanOrderByEndDesc(bookerId, LocalDateTime.now(),
@@ -93,7 +95,9 @@ public class BookingDbService implements BookingService {
                         .findByItemOwnerIdOrderByStartDesc(ownerId, page).toList());
             case CURRENT:
                 return BookingMapper.mapListToBookingDto(bookingRepository
-                        .findCurrentByOwnerId(ownerId, page).toList());
+                        .findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByEndDesc(
+                                ownerId, LocalDateTime.now(),
+                                LocalDateTime.now(), page).toList());
             case PAST:
                 return BookingMapper.mapListToBookingDto(bookingRepository
                         .findByItemOwnerIdAndEndLessThanOrderByEndDesc(ownerId, LocalDateTime.now(),
@@ -204,11 +208,9 @@ public class BookingDbService implements BookingService {
         Booking booking = optionalExistedBooking.get();
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
-            booking.getItem().setAvailable(true);
             log.debug("Booking {} has been approved", optionalExistedBooking.get());
         } else {
             booking.setStatus(BookingStatus.REJECTED);
-            booking.getItem().setAvailable(false);
             log.debug("Booking {} has been rejected", optionalExistedBooking.get());
         }
 
@@ -237,23 +239,26 @@ public class BookingDbService implements BookingService {
     @Override
     public Integer quantityBookingByStatusAndItemId(BookingStatus status, Integer itemId) {
 
-        return bookingRepository.quantityBookingsByStatusAndItemId(status, itemId);
+        return bookingRepository.countByStatusAndItemId(status, itemId);
     }
 
     @Override
     public BookingDtoForItem findLastBookingByItemId(Integer itemId) {
 
         return bookingRepository
-                .findFirstBookingByItemIdAndEndLessThanOrderByEndDesc(itemId,
+                .findFirstBookingByItemIdAndStatusAndEndLessThanOrderByEndDesc(
+                        itemId,
+                        BookingStatus.APPROVED,
                         LocalDateTime.now());
     }
-
 
     @Override
     public BookingDtoForItem findNextBookingByItemId(Integer itemId) {
 
         return bookingRepository
-                .findFirstBookingByItemIdAndStartGreaterThanOrderByStart(itemId,
+                .findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
+                        itemId,
+                        BookingStatus.APPROVED,
                         LocalDateTime.now());
     }
 }
