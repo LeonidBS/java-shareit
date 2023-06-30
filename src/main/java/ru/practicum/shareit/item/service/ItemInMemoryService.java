@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -33,24 +33,14 @@ import java.util.Optional;
 @Slf4j
 @Service
 @Qualifier("inMemoryService")
+@RequiredArgsConstructor
 public class ItemInMemoryService implements ItemService {
     private final ItemInMemoryRepository itemInMemoryRepository;
+    @Qualifier("inMemoryService")
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final ItemMapperWithComments itemMapperWithComments;
-
     private final CommentsInMemoryRepository commentsInMemoryRepository;
-
-    @Autowired
-    public ItemInMemoryService(ItemInMemoryRepository itemInMemoryRepository,
-                               @Qualifier("inMemoryService") UserService userService,
-                               ItemMapper itemMapper, ItemMapperWithComments itemMapperWithComments, CommentsInMemoryRepository commentsInMemoryRepository) {
-        this.itemInMemoryRepository = itemInMemoryRepository;
-        this.userService = userService;
-        this.itemMapper = itemMapper;
-        this.itemMapperWithComments = itemMapperWithComments;
-        this.commentsInMemoryRepository = commentsInMemoryRepository;
-    }
 
     @Override
     public List<ItemDtoWithComments> findAllByOwnerId(Integer ownerId, int from, int size) {

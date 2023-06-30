@@ -10,7 +10,8 @@ import javax.validation.constraints.*;
  */
 @Entity
 @Table(name = "users", schema = "public")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

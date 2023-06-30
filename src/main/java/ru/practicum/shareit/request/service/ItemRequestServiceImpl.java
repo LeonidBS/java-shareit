@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IdNotFoundException;
@@ -14,13 +14,10 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
+    @Qualifier("inMemory")
     private final ItemRequestRepository itemRequestStorage;
-
-    @Autowired
-    public ItemRequestServiceImpl(@Qualifier("inMemory") ItemRequestRepository itemRequestStorage) {
-        this.itemRequestStorage = itemRequestStorage;
-    }
 
     public List<ItemRequestDto> findAll() {
         return ItemRequestMapper.listToItemRequestDto(itemRequestStorage.findAll());

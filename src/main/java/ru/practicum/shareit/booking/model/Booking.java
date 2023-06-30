@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Bookings")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

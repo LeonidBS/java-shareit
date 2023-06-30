@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -32,19 +32,12 @@ import java.util.Optional;
 @Slf4j
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BookingDbService implements BookingService {
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
+    @Qualifier("dbService")
     private final UserService userService;
-
-    @Autowired
-    public BookingDbService(BookingRepository bookingRepository,
-                            ItemRepository itemRepository,
-                            @Qualifier("dbService") UserService userService) {
-        this.bookingRepository = bookingRepository;
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-    }
 
     @Override
     public List<BookingDto> findAllByBookerIdAndStatus(Integer bookerId, SearchBookingStatus state,

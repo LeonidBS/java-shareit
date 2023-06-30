@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -39,27 +40,15 @@ import java.util.Optional;
 @Service
 @Transactional(readOnly = true)
 @Qualifier("dbService")
+@RequiredArgsConstructor
 public class ItemDbService implements ItemService {
     private final ItemRepository itemRepository;
+    @Qualifier("dbService")
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final ItemMapperWithComments itemMapperWithComments;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
-
-    public ItemDbService(ItemRepository itemRepository,
-                         @Qualifier("dbService") UserService userService,
-                         ItemMapper itemMapper,
-                         ItemMapperWithComments itemMapperWithComments,
-                         CommentRepository commentRepository,
-                         BookingRepository bookingRepository) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-        this.itemMapper = itemMapper;
-        this.itemMapperWithComments = itemMapperWithComments;
-        this.commentRepository = commentRepository;
-        this.bookingRepository = bookingRepository;
-    }
 
     @Override
     public List<ItemDtoWithComments> findAllByOwnerId(Integer ownerId, int from, int size) {
