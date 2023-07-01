@@ -1,42 +1,58 @@
 package ru.practicum.shareit.item.controller;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comment.dto.CommentDto;
+import ru.practicum.shareit.comment.dto.CommentDtoInput;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.item.dto.ItemDtoWithComments;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Slf4j
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/items")
 @Validated
 public class ItemController {
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
 
-    @GetMapping
-    public List<ItemDto> getOwnerAll(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
-        return itemService.findOwnerAll(ownerId);
+    @Autowired
+    public ItemController(@Qualifier("dbService") ItemService itemService) {
+        this.itemService = itemService;
     }
 
-    @GetMapping("/{id}")
-    public ItemDto getById(@PathVariable Integer id) {
+    @GetMapping
+    public List<ItemDtoWithComments> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
+     /*
+     Поскольку в запросе пока нет таких параметров
+     */
+        int from = 0;
+        int size = 10;
 
-        return itemService.findById(id);
+        return itemService.findAllByOwnerId(ownerId, from, size);
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemDtoWithComments findById(@PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
+                                        @RequestHeader("X-Sharer-User-Id") Integer userId) {
+
+        return itemService.findByIdWithOwnerValidation(itemId, userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getBySearchText(@RequestParam(required = false) String text) {
-
-        return itemService.findBySearchText(text);
+     /*
+     Поскольку в запросе пока нет таких параметров
+     */
+        int from = 0;
+        int size = 10;
+        return itemService.findBySearchText(text, from, size);
     }
 
     @PostMapping
@@ -44,6 +60,15 @@ public class ItemController {
                           @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
 
         return itemService.create(itemDto, ownerId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(
+            @RequestBody @Validated(ValidationGroups.Create.class) CommentDtoInput commentDtoInput,
+            @PathVariable @Validated(ValidationGroups.Create.class) Integer itemId,
+            @RequestHeader("X-Sharer-User-Id") Integer userId) {
+
+        return itemService.createComment(commentDtoInput, itemId, userId);
     }
 
     @PatchMapping("/{id}")

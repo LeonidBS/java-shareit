@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.storage;
+package ru.practicum.shareit.request.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import java.util.Map;
 @Component
 @Qualifier("inMemory")
 @RequiredArgsConstructor
-public class ItemRequestInMemoryStorage implements ItemRequestStorage {
+public class ItemRequestInMemoryRepository implements ItemRequestRepository {
     private final Map<Integer, ItemRequest> itemRequests = new HashMap<>();
     private int id = 1;
 

@@ -1,37 +1,38 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.service.BookingDbService;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class ItemMapper {
-    private final BookingServiceImpl bookingService;
+    private final BookingDbService bookingService;
 
-    @Autowired
-    public ItemMapper(BookingServiceImpl bookingService) {
-        this.bookingService = bookingService;
-    }
+    public ItemDto mapToItemDto(Item item) {
 
-    public ItemDto toItemDto(Item item) {
         return new ItemDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getItemRequest() != null ? item.getItemRequest().getId() : null,
-                bookingService.findApprovedBookingByItemId(item.getId()).size()
+                item.getOwner().getId(),
+                item.getOwner().getName(),
+                item.getItemRequest() != null ?
+                        item.getItemRequest().getRequestDate() : null,
+                bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
         );
     }
 
-    public List<ItemDto> listToItemDto(List<Item> items) {
+    public List<ItemDto> mapListToItemDto(List<Item> items) {
         List<ItemDto> itemsDto = new ArrayList<>();
         for (Item item : items) {
-            itemsDto.add(toItemDto(item));
+            itemsDto.add(mapToItemDto(item));
         }
         return itemsDto;
     }

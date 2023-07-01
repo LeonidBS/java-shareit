@@ -8,15 +8,11 @@ import ru.practicum.shareit.validation.ValidationGroups;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @AllArgsConstructor
 @Builder
-public class ItemDto {
+public class ItemDtoForBooking {
     private Integer id;
 
     @NotBlank(message = "Parameter name is empty",
@@ -35,9 +31,5 @@ public class ItemDto {
 
     private Integer ownerId;
 
-    private String ownerName;
-
-    private LocalDate requestDate;
-
-    private Integer bookingQuantity;
+    private Integer requestId;
 }

@@ -1,26 +1,23 @@
 package ru.practicum.shareit.request.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.storage.ItemRequestStorage;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 
 import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ItemRequestServiceImpl implements ItemRequestService {
-    private final ItemRequestStorage itemRequestStorage;
-
-    @Autowired
-    public ItemRequestServiceImpl(@Qualifier("inMemory") ItemRequestStorage itemRequestStorage) {
-        this.itemRequestStorage = itemRequestStorage;
-    }
+    @Qualifier("inMemory")
+    private final ItemRequestRepository itemRequestStorage;
 
     public List<ItemRequestDto> findAll() {
         return ItemRequestMapper.listToItemRequestDto(itemRequestStorage.findAll());
@@ -35,7 +32,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
             throw new IdNotFoundException("There is no User with ID: " + id);
         }
 
-        return ItemRequestMapper.toItemRequestDto(itemRequest);
+        return ItemRequestMapper.mapToItemRequestDto(itemRequest);
     }
 
     @Override

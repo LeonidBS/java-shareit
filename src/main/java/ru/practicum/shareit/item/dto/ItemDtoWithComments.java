@@ -3,20 +3,20 @@ package ru.practicum.shareit.item.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @AllArgsConstructor
 @Builder
-public class ItemDto {
+public class ItemDtoWithComments {
     private Integer id;
 
     @NotBlank(message = "Parameter name is empty",
@@ -32,6 +32,12 @@ public class ItemDto {
     @NotNull(message = "Parameter name is NULL",
             groups = ValidationGroups.Create.class)
     private Boolean available;
+
+    private BookingDtoForItem lastBooking;
+
+    private BookingDtoForItem nextBooking;
+
+    private List<CommentDtoForItem> comments;
 
     private Integer ownerId;
 
