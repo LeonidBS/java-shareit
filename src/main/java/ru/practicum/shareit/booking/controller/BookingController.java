@@ -22,24 +22,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> findAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer bookerId,
-                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
-        /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
+                                                       @RequestParam(defaultValue = "0") Integer from,
+                                                       @RequestParam(defaultValue = "20")  Integer size) {
 
         return bookingService.findAllByBookerIdAndStatus(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllByOwnerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
-                                                      @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
-    /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+                                                      @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
+                                                      @RequestParam(defaultValue = "0") Integer from,
+                                                      @RequestParam(defaultValue = "20")  Integer size) {
 
         return bookingService.findAllByOwnerIdAndStatus(ownerId, state, from, size);
     }

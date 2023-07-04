@@ -2,12 +2,13 @@ package ru.practicum.shareit.request.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.service.ItemRequestServiceImpl;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
+import ru.practicum.shareit.request.service.ItemRequestDbService;
+import ru.practicum.shareit.validation.ValidationGroups;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -18,34 +19,44 @@ import java.util.List;
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
 public class ItemRequestController {
-    private final ItemRequestServiceImpl itemRequestService;
+    private final ItemRequestDbService itemRequestService;
 
     @GetMapping
-    public List<ItemRequestDto> getAll() {
-        return itemRequestService.findAll();
+    public List<ItemRequestDto> findAllOwn(@RequestHeader("X-Sharer-User-Id") Integer requestorId) {
+
+        return itemRequestService.findAllOwn(requestorId);
     }
 
+    @GetMapping
+    public List<ItemRequestDto> findAllExceptOwn(@RequestHeader("X-Sharer-User-Id") Integer requestorId,
+                                                 @RequestParam(defaultValue = "0") Integer from,
+                                                 @RequestParam(defaultValue = "20")  Integer size) {
+
+        return itemRequestService.findAllExceptOwn(requestorId, from, size);
+    }
     @GetMapping("/{id}")
     public ItemRequestDto getById(@PathVariable Integer id) {
 
-        return itemRequestService.findById(id);
+        return itemRequestService.getById(id);
     }
+
 
     @PostMapping
-    public ItemRequest create(@Valid @RequestBody ItemRequest itemRequest) {
+    public ItemRequestDto create(@RequestBody @Validated(ValidationGroups.Create.class) ItemRequestDtoInput dtoInput,
+                              @RequestHeader("X-Sharer-User-Id") Integer requestorId) {
 
-        return itemRequestService.create(itemRequest);
+        return itemRequestService.create(dtoInput, requestorId);
     }
 
-    @PutMapping
-    public ItemRequest update(@Valid @RequestBody ItemRequest itemRequest) {
-
-        return itemRequestService.update(itemRequest);
-    }
-
-    @DeleteMapping("/{id}")
-    public ItemRequest delete(@PathVariable Integer id) {
-
-        return itemRequestService.delete(id);
-    }
+//    @PutMapping
+//    public ItemRequest update(@Valid @RequestBody ItemRequest itemRequest) {
+//
+//        return itemRequestService.update(itemRequest);
+//    }
+//
+//    @DeleteMapping("/{id}")
+//    public ItemRequest delete(@PathVariable Integer id) {
+//
+//        return itemRequestService.delete(id);
+//    }
 }

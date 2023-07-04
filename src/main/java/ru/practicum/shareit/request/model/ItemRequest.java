@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
@@ -8,7 +7,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.
@@ -31,18 +30,16 @@ public class ItemRequest {
 
     @Column(nullable = false)
     @NotNull(message = "Parameter name is NULL")
-    @Size(max = 200, message = "length of description is more then 200 symbols")
+    @Size(min = 1, message = "Request description is empty")
     private String description;
+
+    @Column(name = "requested")
+    @NotNull(message = "Parameter name is NULL")
+    private LocalDateTime requestDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @NotNull(message = "Parameter name is NULL")
     private User requestor;
-
-    @Column(name = "requested")
-    @NotNull(message = "Parameter name is NULL")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate requestDate;
-
 }

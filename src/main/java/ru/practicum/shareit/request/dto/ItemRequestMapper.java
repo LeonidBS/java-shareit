@@ -6,19 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemRequestMapper {
-    public static ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest) {
+    public static ItemRequestDto mapToDto(ItemRequest itemRequest) {
         return new ItemRequestDto(
                 itemRequest.getId(),
                 itemRequest.getDescription(),
+                itemRequest.getRequestDate(),
+                itemRequest.getRequestor().getId(),
                 itemRequest.getRequestor().getName(),
-                itemRequest.getRequestDate()
+                new ArrayList<>()
         );
     }
 
-    public static List<ItemRequestDto> listToItemRequestDto(List<ItemRequest> itemRequests) {
+    public static List<ItemRequestDto> mapListToDto(List<ItemRequest> itemRequests) {
         List<ItemRequestDto> itemRequestsDto = new ArrayList<>();
         for (ItemRequest itemRequest : itemRequests) {
-            itemRequestsDto.add(mapToItemRequestDto(itemRequest));
+            itemRequestsDto.add(mapToDto(itemRequest));
         }
         return itemRequestsDto;
     }

@@ -1,14 +1,19 @@
 package ru.practicum.shareit.request.service;
 
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
+
+import java.util.List;
 
 public interface ItemRequestService {
-    ItemRequestDto findById(Integer id);
 
-    ItemRequest create(ItemRequest itemRequest);
+    List<ItemRequestDto> findAllOwn(Integer requestorId);
 
-    ItemRequest update(ItemRequest itemRequest);
+    List<ItemRequestDto> findAllExceptOwn(Integer requestorId, Integer from, Integer size);
 
-    ItemRequest delete(Integer id);
+    ItemRequestDto getById(Integer id);
+
+    ItemRequestDto create(ItemRequestDtoInput dtoInput, Integer requestorId);
+
+    void delete(Integer id);
 }

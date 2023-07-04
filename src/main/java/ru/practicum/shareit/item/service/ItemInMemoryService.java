@@ -13,10 +13,7 @@ import ru.practicum.shareit.comment.repository.CommentsInMemoryRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.MyValidationException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithComments;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemMapperWithComments;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemInMemoryRepository;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -79,18 +76,18 @@ public class ItemInMemoryService implements ItemService {
     }
 
     @Override
-    public ItemDto create(ItemDto itemDto, Integer userId) {
+    public ItemDto create(ItemDtoInput itemDtoInput, Integer userId) {
         User owner = UserMapper.mapToUser(userService.findById(userId));
 
-        if (itemDto.getAvailable() == null) {
+        if (itemDtoInput.getAvailable() == null) {
             log.error("Available is NULL");
             throw new MyValidationException("Available is NULL");
         }
 
         @Valid Item item = Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
+                .name(itemDtoInput.getName())
+                .description(itemDtoInput.getDescription())
+                .available(itemDtoInput.getAvailable())
                 .owner(owner)
                 .itemRequest(null)
                 .build();
@@ -101,7 +98,7 @@ public class ItemInMemoryService implements ItemService {
     }
 
     @Override
-    public ItemDto update(ItemDto itemDto, Integer ownerId, Integer itemId) {
+    public ItemDto update(ItemDtoInput itemDtoInput, Integer ownerId, Integer itemId) {
         User owner = UserMapper.mapToUser(userService.findById(ownerId));
         Optional<Item> optionalExistedItem = itemInMemoryRepository.findById(itemId);
 
@@ -117,11 +114,11 @@ public class ItemInMemoryService implements ItemService {
 
         Item item = Item.builder()
                 .id(itemId)
-                .name(itemDto.getName() != null ? itemDto.getName() : optionalExistedItem.get().getName())
-                .description(itemDto.getDescription() != null
-                        ? itemDto.getDescription() : optionalExistedItem.get().getDescription())
-                .available(itemDto.getAvailable() != null
-                        ? itemDto.getAvailable() : optionalExistedItem.get().getAvailable())
+                .name(itemDtoInput.getName() != null ? itemDtoInput.getName() : optionalExistedItem.get().getName())
+                .description(itemDtoInput.getDescription() != null
+                        ? itemDtoInput.getDescription() : optionalExistedItem.get().getDescription())
+                .available(itemDtoInput.getAvailable() != null
+                        ? itemDtoInput.getAvailable() : optionalExistedItem.get().getAvailable())
                 .owner(owner)
                 .itemRequest(optionalExistedItem.get().getItemRequest())
                 .build();
@@ -150,5 +147,10 @@ public class ItemInMemoryService implements ItemService {
                 .build();
 
         return CommentMapper.mapToDto(commentsInMemoryRepository.save(comment));
+    }
+
+    @Override
+    public List<ItemDto> findByItemRequestId(Integer itemRequestId) {
+        return itemMapper.mapListToItemDto(itemInMemoryRepository.findByItemRequestId(itemRequestId));
     }
 }

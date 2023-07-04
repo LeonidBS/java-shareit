@@ -25,12 +25,9 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getAll() {
-     /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+    public List<UserDto> getAll(@RequestParam(defaultValue = "0") Integer from,
+            @RequestParam(defaultValue = "20")  Integer size) {
+
         return userService.findAll(from, size);
     }
 

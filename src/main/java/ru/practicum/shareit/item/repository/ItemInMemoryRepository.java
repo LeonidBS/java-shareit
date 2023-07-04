@@ -69,4 +69,10 @@ public class ItemInMemoryRepository {
         }
         return notActiveItems;
     }
+
+    public List<Item> findByItemRequestId(Integer itemRequestId) {
+        return items.values().stream()
+                .filter(i -> i.getItemRequest().getId() == itemRequestId)
+                .collect(Collectors.toList());
+    }
 }

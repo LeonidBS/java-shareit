@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoInput;
 import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
@@ -28,12 +29,9 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithComments> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId) {
-     /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+    public List<ItemDtoWithComments> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+                                                      @RequestParam(defaultValue = "0") Integer from,
+                                                      @RequestParam(defaultValue = "20")  Integer size) {
 
         return itemService.findAllByOwnerId(ownerId, from, size);
     }
@@ -46,20 +44,18 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getBySearchText(@RequestParam(required = false) String text) {
-     /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+    public List<ItemDto> getBySearchText(@RequestParam(required = false) String text,
+                                         @RequestParam(defaultValue = "0") Integer from,
+                                         @RequestParam(defaultValue = "20")  Integer size) {
+
         return itemService.findBySearchText(text, from, size);
     }
 
     @PostMapping
-    public ItemDto create(@RequestBody @Validated(ValidationGroups.Create.class) ItemDto itemDto,
+    public ItemDto create(@RequestBody @Validated(ValidationGroups.Create.class) ItemDtoInput itemDtoInput,
                           @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
 
-        return itemService.create(itemDto, ownerId);
+        return itemService.create(itemDtoInput, ownerId);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -72,10 +68,10 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ItemDto update(@Valid @RequestBody ItemDto itemDto, @PathVariable Integer id,
+    public ItemDto update(@Valid @RequestBody ItemDtoInput itemDtoInput, @PathVariable Integer id,
                           @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
 
-        return itemService.update(itemDto, ownerId, id);
+        return itemService.update(itemDtoInput, ownerId, id);
     }
 
 
