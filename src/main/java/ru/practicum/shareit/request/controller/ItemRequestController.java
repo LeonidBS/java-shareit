@@ -9,6 +9,9 @@ import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
 import ru.practicum.shareit.request.service.ItemRequestDbService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 /**
@@ -18,28 +21,33 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/requests")
 @RequiredArgsConstructor
+@Validated
 public class ItemRequestController {
     private final ItemRequestDbService itemRequestService;
 
     @GetMapping
-    public List<ItemRequestDto> findAllOwn(@RequestHeader("X-Sharer-User-Id") Integer requestorId) {
+    public List<ItemRequestDto> findOwn(@RequestHeader("X-Sharer-User-Id") Integer requestorId) {
 
-        return itemRequestService.findAllOwn(requestorId);
+        return itemRequestService.findOwn(requestorId);
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<ItemRequestDto> findAllExceptOwn(@RequestHeader("X-Sharer-User-Id") Integer requestorId,
+                                                 @Valid @PositiveOrZero(message
+                                                         = "page should be positive or 0")
                                                  @RequestParam(defaultValue = "0") Integer from,
-                                                 @RequestParam(defaultValue = "20")  Integer size) {
+                                                 @Valid @Positive(message
+                                                         = "size should be positive number")
+                                                 @RequestParam(defaultValue = "20") Integer size) {
 
         return itemRequestService.findAllExceptOwn(requestorId, from, size);
     }
-    @GetMapping("/{id}")
-    public ItemRequestDto getById(@PathVariable Integer id) {
+    @GetMapping("/{requestId}")
+    public ItemRequestDto getById(@PathVariable Integer requestId,
+                                  @RequestHeader("X-Sharer-User-Id") Integer userId) {
 
-        return itemRequestService.getById(id);
+        return itemRequestService.getById(requestId, userId);
     }
-
 
     @PostMapping
     public ItemRequestDto create(@RequestBody @Validated(ValidationGroups.Create.class) ItemRequestDtoInput dtoInput,
@@ -47,16 +55,4 @@ public class ItemRequestController {
 
         return itemRequestService.create(dtoInput, requestorId);
     }
-
-//    @PutMapping
-//    public ItemRequest update(@Valid @RequestBody ItemRequest itemRequest) {
-//
-//        return itemRequestService.update(itemRequest);
-//    }
-//
-//    @DeleteMapping("/{id}")
-//    public ItemRequest delete(@PathVariable Integer id) {
-//
-//        return itemRequestService.delete(id);
-//    }
 }

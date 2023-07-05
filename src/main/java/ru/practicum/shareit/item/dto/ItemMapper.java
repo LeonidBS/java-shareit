@@ -24,7 +24,7 @@ public class ItemMapper {
                 item.getOwner().getId(),
                 item.getOwner().getName(),
                 item.getItemRequest() != null ?
-                        item.getItemRequest().getRequestDate() : null,
+                        item.getItemRequest().getId() : null,
                 bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
         );
     }

@@ -10,6 +10,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -25,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserDto> getAll(@RequestParam(defaultValue = "0") Integer from,
-            @RequestParam(defaultValue = "20")  Integer size) {
+    public List<UserDto> getAll(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                @RequestParam(defaultValue = "20") @PositiveOrZero Integer size) {
 
         return userService.findAll(from, size);
     }

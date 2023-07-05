@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface ItemRequestService {
 
-    List<ItemRequestDto> findAllOwn(Integer requestorId);
+    List<ItemRequestDto> findOwn(Integer requestorId);
 
     List<ItemRequestDto> findAllExceptOwn(Integer requestorId, Integer from, Integer size);
 
-    ItemRequestDto getById(Integer id);
+    ItemRequestDto getById(Integer requestId, Integer userId);
 
     ItemRequestDto create(ItemRequestDtoInput dtoInput, Integer requestorId);
 

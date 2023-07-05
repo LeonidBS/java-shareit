@@ -37,7 +37,7 @@ public class ItemMapperWithComments {
                     owner.getId(),
                     owner.getName(),
                     request != null ?
-                            request.getRequestDate() : null,
+                            request.getCreated() : null,
                     bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
             );
         } else {
@@ -53,7 +53,7 @@ public class ItemMapperWithComments {
                     null,
                     null,
                     item.getItemRequest() != null ?
-                            item.getItemRequest().getRequestDate() : null,
+                            item.getItemRequest().getCreated() : null,
                     bookingService.quantityBookingByStatusAndItemId(BookingStatus.APPROVED, item.getId())
             );
         }

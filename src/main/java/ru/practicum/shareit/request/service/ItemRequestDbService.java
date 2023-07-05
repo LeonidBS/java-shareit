@@ -34,10 +34,11 @@ public class ItemRequestDbService implements ItemRequestService {
 
 
     @Override
-    public List<ItemRequestDto> findAllOwn(Integer requestorId) {
+    public List<ItemRequestDto> findOwn(Integer requestorId) {
+        userService.findById(requestorId);
 
         return itemRequestRepository.
-                findByRequestorId(requestorId).stream()
+                findByRequestorIdOrderByCreatedDesc(requestorId).stream()
                 .map(r -> {
                     ItemRequestDto requestDto = ItemRequestMapper.mapToDto(r);
                     setListItemDto(requestDto);
@@ -49,9 +50,10 @@ public class ItemRequestDbService implements ItemRequestService {
     @Override
     public List<ItemRequestDto> findAllExceptOwn(Integer requestorId, Integer from, Integer size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        userService.findById(requestorId);
 
         return itemRequestRepository.
-                findByRequestorIdNot(requestorId, page).stream()
+                findByRequestorIdNotOrderByCreatedDesc(requestorId, page).stream()
                 .map(r -> {
                     ItemRequestDto requestDto = ItemRequestMapper.mapToDto(r);
                     setListItemDto(requestDto);
@@ -61,9 +63,11 @@ public class ItemRequestDbService implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getById(Integer id) {
+    public ItemRequestDto getById(Integer requestId, Integer userId) {
+        userService.findById(userId);
+
         ItemRequestDto requestDto = ItemRequestMapper
-                .mapToDto(itemRequestRepository.findById(id)
+                .mapToDto(itemRequestRepository.findById(requestId)
                         .orElseThrow(() -> new IdNotFoundException("ItemRequest not found")));
         setListItemDto(requestDto);
 
@@ -80,7 +84,7 @@ public class ItemRequestDbService implements ItemRequestService {
 
         @Valid ItemRequest itemRequest = ItemRequest.builder()
                 .description(dtoInput.getDescription())
-                .requestDate(dtoInput.getRequestDate())
+                .created(dtoInput.getRequestDate())
                 .requestor(UserMapper.mapToUser(userDto))
                 .build();
 

@@ -28,19 +28,20 @@ public class UserDbService implements UserService {
     @Override
     public List<UserDto> findAll(int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+
         return UserMapper.mapListToUserDto(userRepository.findAll(page).toList());
     }
 
     @Override
     public UserDto findById(Integer id) {
-        Optional<User> optionalUser = userRepository.findById(id);
 
-        if (optionalUser.isEmpty()) {
-            log.error("User with ID {} has not been found", id);
-            throw new IdNotFoundException("There is no User with ID: " + id);
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("User with ID {} has not been found", id);
+                    return new IdNotFoundException("There is no User with ID: " + id);
+                });
 
-        return UserMapper.mapToUserDto(optionalUser.get());
+        return UserMapper.mapToUserDto(user);
     }
 
     @Override

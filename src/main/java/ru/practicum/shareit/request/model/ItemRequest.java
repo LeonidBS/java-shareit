@@ -35,7 +35,7 @@ public class ItemRequest {
 
     @Column(name = "requested")
     @NotNull(message = "Parameter name is NULL")
-    private LocalDateTime requestDate;
+    private LocalDateTime created;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

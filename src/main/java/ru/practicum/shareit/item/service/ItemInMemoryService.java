@@ -40,7 +40,7 @@ public class ItemInMemoryService implements ItemService {
     private final CommentsInMemoryRepository commentsInMemoryRepository;
 
     @Override
-    public List<ItemDtoWithComments> findAllByOwnerId(Integer ownerId, int from, int size) {
+    public List<ItemDtoWithComments> findByOwnerId(Integer ownerId, int from, int size) {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
 
         userService.findById(ownerId);

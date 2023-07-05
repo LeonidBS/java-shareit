@@ -10,6 +10,9 @@ import ru.practicum.shareit.booking.model.SearchBookingStatus;
 import ru.practicum.shareit.booking.service.BookingDbService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -23,8 +26,12 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer bookerId,
                                                        @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
-                                                       @RequestParam(defaultValue = "0") Integer from,
-                                                       @RequestParam(defaultValue = "20")  Integer size) {
+                                                       @Valid @PositiveOrZero(message
+                                                               = "page should be positive or 0")
+                                                           @RequestParam(defaultValue = "0") Integer from,
+                                                       @Valid @Positive(message
+                                                               = "size should be positive number")
+                                                           @RequestParam(defaultValue = "20") Integer size) {
 
         return bookingService.findAllByBookerIdAndStatus(bookerId, state, from, size);
     }
@@ -32,8 +39,12 @@ public class BookingController {
     @GetMapping("/owner")
     public List<BookingDto> findAllByOwnerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
-                                                      @RequestParam(defaultValue = "0") Integer from,
-                                                      @RequestParam(defaultValue = "20")  Integer size) {
+                                                      @Valid @PositiveOrZero(message
+                                                              = "page should be positive or 0")
+                                                          @RequestParam(defaultValue = "0") Integer from,
+                                                      @Valid @Positive(message
+                                                              = "size should be positive number")
+                                                          @RequestParam(defaultValue = "20") Integer size) {
 
         return bookingService.findAllByOwnerIdAndStatus(ownerId, state, from, size);
     }

@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -29,11 +31,15 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithComments> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
-                                                      @RequestParam(defaultValue = "0") Integer from,
-                                                      @RequestParam(defaultValue = "20")  Integer size) {
+    public List<ItemDtoWithComments> findByOwnerId(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+                                                   @Valid @PositiveOrZero(message
+                                                           = "page should be positive or 0")
+                                                   @RequestParam(defaultValue = "0") Integer from,
+                                                   @Valid @Positive(message
+                                                           = "size should be positive number")
+                                                       @RequestParam(defaultValue = "20") Integer size) {
 
-        return itemService.findAllByOwnerId(ownerId, from, size);
+        return itemService.findByOwnerId(ownerId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -45,8 +51,12 @@ public class ItemController {
 
     @GetMapping("/search")
     public List<ItemDto> getBySearchText(@RequestParam(required = false) String text,
+                                         @Valid @PositiveOrZero(message
+                                                 = "page should be positive or 0")
                                          @RequestParam(defaultValue = "0") Integer from,
-                                         @RequestParam(defaultValue = "20")  Integer size) {
+                                         @Valid @Positive(message
+                                                 = "size should be positive number")
+                                             @RequestParam(defaultValue = "20") Integer size) {
 
         return itemService.findBySearchText(text, from, size);
     }

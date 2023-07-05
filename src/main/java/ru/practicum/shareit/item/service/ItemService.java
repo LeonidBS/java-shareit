@@ -11,7 +11,7 @@ import java.util.List;
 
 @Transactional(readOnly = true)
 public interface ItemService {
-    List<ItemDtoWithComments> findAllByOwnerId(Integer ownerId, int from, int size);
+    List<ItemDtoWithComments> findByOwnerId(Integer ownerId, int from, int size);
 
     ItemDtoWithComments findByIdWithOwnerValidation(Integer itemId, Integer userId);
 
