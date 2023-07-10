@@ -40,7 +40,7 @@ public class ItemRequestDbService implements ItemRequestService {
         return itemRequestRepository.
                 findByRequestorIdOrderByCreatedDesc(requestorId).stream()
                 .map(r -> {
-                    ItemRequestDto requestDto = ItemRequestMapper.mapToDto(r);
+                    ItemRequestDto requestDto = ItemRequestMapper.INSTANCE.mapToDto(r);
                     setListItemDto(requestDto);
                     return requestDto;
                 })
@@ -55,7 +55,7 @@ public class ItemRequestDbService implements ItemRequestService {
         return itemRequestRepository.
                 findByRequestorIdNotOrderByCreatedDesc(requestorId, page).stream()
                 .map(r -> {
-                    ItemRequestDto requestDto = ItemRequestMapper.mapToDto(r);
+                    ItemRequestDto requestDto = ItemRequestMapper.INSTANCE.mapToDto(r);
                     setListItemDto(requestDto);
                     return requestDto;
                 })
@@ -66,7 +66,7 @@ public class ItemRequestDbService implements ItemRequestService {
     public ItemRequestDto getById(Integer requestId, Integer userId) {
         userService.findById(userId);
 
-        ItemRequestDto requestDto = ItemRequestMapper
+        ItemRequestDto requestDto = ItemRequestMapper.INSTANCE
                 .mapToDto(itemRequestRepository.findById(requestId)
                         .orElseThrow(() -> new IdNotFoundException("ItemRequest not found")));
         setListItemDto(requestDto);
@@ -88,10 +88,9 @@ public class ItemRequestDbService implements ItemRequestService {
                 .requestor(UserMapper.mapToUser(userDto))
                 .build();
 
-        itemRequestRepository.save(itemRequest);
         log.debug("ItemRequest has been created: {}", itemRequest);
 
-        return ItemRequestMapper.mapToDto(itemRequest);
+        return ItemRequestMapper.INSTANCE.mapToDto(itemRequestRepository.save(itemRequest));
     }
 
     @Override

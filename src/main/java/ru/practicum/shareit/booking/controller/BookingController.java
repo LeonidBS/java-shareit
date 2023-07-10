@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
-import ru.practicum.shareit.booking.service.BookingDbService;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.Valid;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class BookingController {
-    private final BookingDbService bookingService;
+    private final BookingService bookingService;
 
     @GetMapping
     public List<BookingDto> findAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer bookerId,

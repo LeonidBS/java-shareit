@@ -3,6 +3,8 @@ package ru.practicum.shareit.booking.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -53,4 +55,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Integer countByBookerIdAndItemIdAndStatusAndEndLessThan(
             Integer userId, Integer itemId, BookingStatus status, LocalDateTime currentTime);
+
+    @Modifying
+    @Query("UPDATE Booking b " +
+            "SET b.booker=null " +
+            "WHERE b.booker.id = ?1 ")
+    void updateBookingsDeletingByUserId(Integer userId);
 }

@@ -1,19 +1,18 @@
 package ru.practicum.shareit.request.dto;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-import java.util.ArrayList;
+@Mapper
+public interface ItemRequestMapper {
+    ItemRequestMapper INSTANCE = Mappers.getMapper( ItemRequestMapper.class );
 
-public class ItemRequestMapper {
-    public static ItemRequestDto mapToDto(ItemRequest itemRequest) {
-        return new ItemRequestDto(
-                itemRequest.getId(),
-                itemRequest.getDescription(),
-                itemRequest.getCreated(),
-                itemRequest.getRequestor().getId(),
-                itemRequest.getRequestor().getName(),
-                new ArrayList<>()
-        );
-    }
-
+    @Mapping(target = "requestorId", source = "requestor.id")
+    @Mapping(target = "requestorName", source = "requestor.name")
+    @Mapping(target = "items", ignore = true)
+    ItemRequestDto mapToDto (ItemRequest entity);
 }
+
+

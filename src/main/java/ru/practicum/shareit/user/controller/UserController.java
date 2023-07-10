@@ -16,7 +16,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
-//@Validated
 public class UserController {
     private final UserService userService;
 
@@ -51,7 +50,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public UserDto updateByPatch(@RequestBody UserDto userDto, @PathVariable Integer id) {
+    public UserDto updateByPatch(@RequestBody @Validated UserDto userDto, @PathVariable Integer id) {
 
         return userService.updateByPatch(userDto, id);
     }

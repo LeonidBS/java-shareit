@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -24,6 +27,9 @@ import java.util.Optional;
 public class UserDbService implements UserService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Override
     public List<UserDto> findAll(int from, int size) {
@@ -99,10 +105,20 @@ public class UserDbService implements UserService {
     public void deleteById(Integer id) {
         PageRequest page = PageRequest.of(0, 1);
 
+        commentRepository.deleteCommentsByUserId(id);
+
         if (itemRepository.findByOwnerIdOrderById(id, page).toList().size() != 0) {
             itemRepository.updateItemsAsIsNotAvailableByUserId(id);
         }
-        userRepository.deleteById(id);
 
+        if (bookingRepository.findByBookerIdOrderByStartDesc(id, page).toList().size() != 0) {
+            bookingRepository.updateBookingsDeletingByUserId(id);
+        }
+
+        if (itemRequestRepository.findByRequestorIdOrderByCreatedDesc(id).size() != 0) {
+            itemRequestRepository.updateRequestsByDeletingUserId(id);
+        }
+
+        userRepository.deleteById(id);
     }
 }
