@@ -23,4 +23,15 @@ public class ItemDto {
     private Integer requestId;
 
     private Integer bookingQuantity;
+
+    @Override
+    public String toString() {
+            return "(<{id=" + id + ", name=" + name
+                    + ", description=" + description
+                    + ", available=" + available
+                    + ", ownerId=" + ownerId
+                    + ", ownerName=" + ownerName
+                    + ", requestId=" + requestId
+                    + ", bookingQuantity=" + bookingQuantity + "}>)";
+    }
 }

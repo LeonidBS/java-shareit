@@ -42,6 +42,7 @@ public class ItemRequestController {
 
         return itemRequestService.findAllExceptOwn(requestorId, from, size);
     }
+
     @GetMapping("/{requestId}")
     public ItemRequestDto getById(@PathVariable Integer requestId,
                                   @RequestHeader("X-Sharer-User-Id") Integer userId) {
@@ -51,8 +52,14 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDto create(@RequestBody @Validated(ValidationGroups.Create.class) ItemRequestDtoInput dtoInput,
-                              @RequestHeader("X-Sharer-User-Id") Integer requestorId) {
+                                 @RequestHeader("X-Sharer-User-Id") Integer requestorId) {
 
         return itemRequestService.create(dtoInput, requestorId);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+
+        itemRequestService.delete(id);
     }
 }

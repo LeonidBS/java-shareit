@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ItemRequestDbService implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
@@ -74,6 +76,7 @@ public class ItemRequestDbService implements ItemRequestService {
         return requestDto;
     }
 
+    @Transactional
     @Override
     public ItemRequestDto create(ItemRequestDtoInput dtoInput, Integer requestorId) {
         UserDto userDto = userService.findById(requestorId);

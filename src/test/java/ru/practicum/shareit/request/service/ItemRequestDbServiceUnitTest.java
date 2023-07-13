@@ -13,9 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemDbService;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
@@ -49,57 +49,21 @@ class ItemRequestDbServiceUnitTest {
 
     @InjectMocks
     private ItemRequestDbService itemRequestDbService;
-
     private static User requestor;
-    private static User owner;
     private static ItemRequest itemRequest;
-    private static Item item;
     private static ItemDto itemDto;
 
     @BeforeAll
     static void setUp() {
-        requestor = User.builder()
-                .id(1)
-                .name("requestor")
-                .email("requestor@user.com")
-                .build();
 
-        owner = User.builder()
-                .id(2)
-                .name("owner")
-                .email("owner@user.com")
-                .build();
-
-        itemRequest = ItemRequest.builder()
-                .id(1)
-                .description("request")
-                .created(LocalDateTime.now())
-                .requestor(requestor)
-                .build();
-
-        item = Item.builder()
-                .id(1)
-                .name("item")
-                .description("good item")
-                .available(true)
-                .owner(owner)
-                .itemRequest(itemRequest)
-                .build();
-
-        itemDto = ItemDto.builder()
-                .id(1)
-                .name("itemDto")
-                .description("good itemDto")
-                .available(true)
-                .ownerId(2)
-                .ownerName("owner")
-                .bookingQuantity(null)
-                .requestId(1)
-                .build();
+        requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
+        itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
+        itemDto = InstanceFactory.newItemDto(1, "itemDto", "good itemDto", true,
+                2, "owner", null, 1);
     }
 
     @Test
-    void findOwnWhenRequestorExist() {
+    void findOwnWhenRequestorExistThenReturnRequests() {
         int requestorId = 1;
         List<ItemRequest> requests = List.of(itemRequest);
         List<ItemDto> itemsDto = List.of(itemDto);
@@ -126,7 +90,7 @@ class ItemRequestDbServiceUnitTest {
     }
 
     @Test
-    void findAllExceptOwnWhenRequestorExist() {
+    void findAllExceptOwnWhenRequestorExistThenReturnRequests() {
         int requestorId = 3;
         Pageable pageable1 = PageRequest.of(0, 5);
         Pageable pageable2 = PageRequest.of(1, 5);
@@ -182,11 +146,8 @@ class ItemRequestDbServiceUnitTest {
         }
 
         Page<ItemRequest> pageItemRequest2 = new PageImpl<>(listItemRequest2, pageable2, 0);
-        List<ItemRequest> requests = List.of(itemRequest);
-        List<ItemDto> itemsDto = List.of(itemDto);
         ItemRequestDto expectedRequest = ItemRequestMapper.INSTANCE.mapToDto(itemRequest);
         expectedRequest.setItems(List.of(itemDto));
-        List<ItemRequestDto> expectedRequests = List.of(expectedRequest);
 
         when(itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(requestorId, pageable1))
                 .thenReturn(pageItemRequest1);
@@ -216,7 +177,7 @@ class ItemRequestDbServiceUnitTest {
     }
 
     @Test
-    void getByIdWhenIdNotExist() {
+    void getByIdWhenIdNotExistThenThrowException() {
         int id = 99;
         int userId = 1;
 
@@ -227,7 +188,7 @@ class ItemRequestDbServiceUnitTest {
     }
 
     @Test
-    void createWhenPassedCreatedNull() {
+    void createWhenDateCreatedNull() {
         int requestorId = 1;
 
         ItemRequestDtoInput newItemRequestInput = ItemRequestDtoInput.builder()
@@ -243,10 +204,6 @@ class ItemRequestDbServiceUnitTest {
         assertNotNull(retrievedDto.getCreated());
         assertEquals(1, retrievedDto.getRequestorId());
         assertEquals("requestor", retrievedDto.getRequestorName());
-        assertEquals(new ArrayList<>(), retrievedDto.getItems());
-    }
-
-    @Test
-    void delete() {
+        assertNull(retrievedDto.getItems());
     }
 }

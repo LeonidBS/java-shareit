@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.comment.model.Comment;
@@ -29,7 +30,6 @@ import static org.hamcrest.Matchers.*;
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-//@ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
 class UserDbServiceIntegrationTest {
 
@@ -37,25 +37,21 @@ class UserDbServiceIntegrationTest {
     private final @Qualifier("dbService") UserService userService;
 
     @Test
-    void findAll() {
+    void findAllReturnUsers() {
 
         List<UserDto> sourceUsers = new ArrayList<>();
 
         for (int i = 0; i < 5; i++) {
-            sourceUsers.add(UserDto.builder()
-                    .name("user" + i)
-                    .email("user" + i + "@user.com")
-                    .build());
+            sourceUsers.add(InstanceFactory.newUserDto("user" + i,
+                    "user" + i + "@user.com"));
         }
 
         for (UserDto entity : sourceUsers) {
             em.persist(UserMapper.mapToUser(entity));
         }
-        //       em.flush();
-
+        em.flush();
 
         List<UserDto> targetUsers = userService.findAll(0, 10);
-
 
         assertThat(targetUsers, hasSize(sourceUsers.size()));
         int id = 0;
@@ -70,54 +66,32 @@ class UserDbServiceIntegrationTest {
     }
 
     @Test
-    void deleteById() {
-        UserDto sourceUser = UserDto.builder()
-                .name("user")
-                .email("user@user.com")
-                .build();
+    void deleteByIdWhenUserExistThenDeleteUserAndUserIdInLinkedTablesUserItemsSetUnavailable() {
+        UserDto sourceUser = InstanceFactory.newUserDto("user", "user@user.com");
         em.persist(UserMapper.mapToUser(sourceUser));
-
 
         TypedQuery<User> queryUser = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class);
         User user = queryUser.setParameter("id", 1)
                 .getSingleResult();
 
-        ItemRequest itemRequest = ItemRequest.builder()
-                .description("request description")
-                .created(LocalDateTime.now().plusMinutes(1))
-                .requestor(user)
-                .build();
+        ItemRequest itemRequest = InstanceFactory.newItemRequest(null,
+                "request description", LocalDateTime.now().plusMinutes(1), user);
         em.persist(itemRequest);
 
-        Item item = Item.builder()
-                .name("item")
-                .description("description")
-                .available(true)
-                .owner(user)
-                .itemRequest(null)
-                .build();
+        Item item = InstanceFactory.newItem(null, "item", "description",
+                true, user, null);
         em.persist(item);
 
-        Booking booking = Booking.builder()
-                .start(LocalDateTime.now().plusMinutes(1))
-                .end(LocalDateTime.now().plusDays(1))
-                .item(item)
-                .booker(user)
-                .status(BookingStatus.WAITING)
-                .build();
+        Booking booking = InstanceFactory.newBooking(LocalDateTime.now().plusMinutes(1),
+                LocalDateTime.now().plusDays(1), item, user, BookingStatus.WAITING);
         em.persist(booking);
 
-        Comment comment = Comment.builder()
-                .text("comment text")
-                .author(user)
-                .created(LocalDateTime.now().plusMinutes(2))
-                .build();
+        Comment comment = InstanceFactory.newComment(null, "comment text", user,
+                LocalDateTime.now().plusMinutes(2));
         em.persist(comment);
         em.flush();
 
-
         userService.deleteById(1);
-
 
         assertThat(userService.findAll(0, 10), hasSize(0));
 

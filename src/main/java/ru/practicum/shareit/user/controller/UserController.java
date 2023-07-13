@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +16,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(path = "/users")
+@RequiredArgsConstructor
 public class UserController {
+    @Qualifier("dbService")
     private final UserService userService;
-
-    @Autowired
-    public UserController(@Qualifier("dbService") UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public List<UserDto> getAll(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

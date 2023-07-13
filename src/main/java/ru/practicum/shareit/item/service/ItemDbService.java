@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -61,7 +59,6 @@ public class ItemDbService implements ItemService {
     }
 
     @Override
-    @Fetch(FetchMode.JOIN)
     public ItemDtoWithComments findByIdWithOwnerValidation(Integer id, Integer userId) {
         userService.findById(userId);
 

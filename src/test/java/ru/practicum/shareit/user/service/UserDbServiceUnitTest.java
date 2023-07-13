@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -40,22 +41,10 @@ class UserDbServiceUnitTest {
 
     @BeforeAll
     static void setUp() {
-        newUser = User.builder()
-                .name("newUser")
-                .email("new.user@user.com")
-                .build();
 
-        existUser = User.builder()
-                .id(1)
-                .name("existUser")
-                .email("exist.user@user.com")
-                .build();
-
-        updatedUser = User.builder()
-                .id(1)
-                .name("updatedUser")
-                .email("updated.user@user.com")
-                .build();
+        newUser = InstanceFactory.newUser(null, "newUser", "new.user@user.com");
+        existUser = InstanceFactory.newUser(1, "existUser", "exist.user@user.com");
+        updatedUser =  InstanceFactory.newUser(1, "updatedUser", "updated.user@user.com");
     }
 
     @Test
@@ -77,11 +66,8 @@ class UserDbServiceUnitTest {
         List<User> list2 = new ArrayList<>();
 
         for (int j = 6; j < 9; j++) {
-            list1.add(User.builder()
-                    .id(j)
-                    .name("user" + j)
-                    .email("user" + j + "@user.com")
-                    .build());
+            list1.add(InstanceFactory.newUser(j,
+                    "user" + j, "user" + j + "@user.com")); ;
         }
 
         Page<User> page2 = new PageImpl<>(list2, pageable1, 0);

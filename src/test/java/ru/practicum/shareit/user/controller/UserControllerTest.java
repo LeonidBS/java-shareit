@@ -61,7 +61,6 @@ class UserControllerTest {
                 .name("user")
                 .email("user@user.com")
                 .build();
-
     }
 
     @SneakyThrows
