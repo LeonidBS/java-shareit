@@ -82,11 +82,11 @@ class UserDbServiceIntegrationTest {
                 true, user, null);
         em.persist(item);
 
-        Booking booking = InstanceFactory.newBooking(LocalDateTime.now().plusMinutes(1),
+        Booking booking = InstanceFactory.newBooking(null , LocalDateTime.now().plusMinutes(1),
                 LocalDateTime.now().plusDays(1), item, user, BookingStatus.WAITING);
         em.persist(booking);
 
-        Comment comment = InstanceFactory.newComment(null, "comment text", user,
+        Comment comment = InstanceFactory.newComment(null, "comment text", item, user,
                 LocalDateTime.now().plusMinutes(2));
         em.persist(comment);
         em.flush();

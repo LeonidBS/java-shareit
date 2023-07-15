@@ -31,4 +31,9 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Intege
             "SET ir.requestor=null " +
             "WHERE ir.requestor.id = ?1 ")
     void updateRequestsByDeletingUserId(Integer userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM ItemRequest CASCADE")
+    void deleteAllItemRequest();
+
 }

@@ -3,9 +3,11 @@ package ru.practicum.shareit.auxiliary;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -48,6 +50,19 @@ public class InstanceFactory {
                 .requestId(requestId)
                 .build();
     }
+
+    public static ItemDtoForBooking newItemDtoForBooking(Integer id, String name, String description,
+                                                  Boolean available, Integer ownerId, Integer requestId) {
+        return ItemDtoForBooking.builder()
+                .id(id)
+                .name(name)
+                .description(description)
+                .available(available)
+                .ownerId(ownerId)
+                .requestId(requestId)
+                .build();
+    }
+
 
     public static ItemDtoWithComments newItemDtoWithComments(Integer id, String name, String description,
                                                              Boolean available, BookingDtoForItem lastBooking,
@@ -106,9 +121,10 @@ public class InstanceFactory {
                 .build();
     }
 
-    public static Booking newBooking(LocalDateTime start, LocalDateTime end,
+    public static Booking newBooking(Integer id, LocalDateTime start, LocalDateTime end,
                                      Item item, User user, BookingStatus status) {
         return Booking.builder()
+                .id(id)
                 .start(start)
                 .end(end)
                 .item(item)
@@ -117,12 +133,53 @@ public class InstanceFactory {
                 .build();
     }
 
-    public static Comment newComment(Integer id, String text, User author,
+    public static BookingDtoForItem newBookingDtoForItem(Integer id, LocalDateTime start, LocalDateTime end,
+                                     BookingStatus status, Integer bookerId) {
+        return BookingDtoForItem.builder()
+                .id(id)
+                .start(start)
+                .end(end)
+                .status(status)
+                .bookerId(bookerId)
+                .build();
+    }
+
+    public static Comment newComment(Integer id, String text,
+                                     Item item, User author,
                                      LocalDateTime created) {
         return  Comment.builder()
                 .id(id)
                 .text(text)
+                .item(item)
                 .author(author)
+                .created(created)
+                .build();
+    }
+
+    public static CommentDto newCommentDto(Integer id, String text,
+                                           Integer itemId, String itemName,
+                                           Integer authorId, String authorName,
+                                           LocalDateTime created) {
+        return  CommentDto.builder()
+                .id(id)
+                .text(text)
+                .itemId(itemId)
+                .itemName(itemName)
+                .authorId(authorId)
+                .authorName(authorName)
+                .created(created)
+                .build();
+    }
+
+    public static CommentDtoForItem newCommentDtoForItem(Integer id, String text,
+                                           Integer itemId, Integer authorId, String authorName,
+                                           LocalDateTime created) {
+        return  CommentDtoForItem.builder()
+                .id(id)
+                .text(text)
+                .itemId(itemId)
+                .authorId(authorId)
+                .authorName(authorName)
                 .created(created)
                 .build();
     }

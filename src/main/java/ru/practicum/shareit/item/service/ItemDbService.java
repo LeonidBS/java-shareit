@@ -38,6 +38,7 @@ import java.util.List;
 @Qualifier("dbService")
 @RequiredArgsConstructor
 public class ItemDbService implements ItemService {
+
     private final ItemRepository itemRepository;
     @Qualifier("dbService")
     private final UserService userService;
@@ -104,9 +105,9 @@ public class ItemDbService implements ItemService {
                 .itemRequest(itemRequest)
                 .build();
 
-        itemRepository.save(item);
         log.debug("Item has been created: {}", item);
-        return itemMapper.mapToItemDto(item);
+
+        return itemMapper.mapToItemDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -116,8 +117,8 @@ public class ItemDbService implements ItemService {
 
         Item existedItem = itemRepository.findById(itemId)
                 .orElseThrow(() -> {
-                    log.error("User with ID {} has not been found", itemId);
-                    return new IdNotFoundException("There is no User with ID: " + itemId);
+                    log.error("Item with ID {} has not been found", itemId);
+                    return new IdNotFoundException("There is no Item with ID: " + itemId);
                 });
 
         if (!existedItem.getOwner().getId().equals(ownerId)) {
@@ -136,10 +137,10 @@ public class ItemDbService implements ItemService {
                 .itemRequest(existedItem.getItemRequest())
                 .build();
 
-        itemRepository.save(item);
+
         log.debug("ItemRequest has been updated: {}", item);
 
-        return itemMapper.mapToItemDto(item);
+        return itemMapper.mapToItemDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -159,11 +160,7 @@ public class ItemDbService implements ItemService {
                     " cannot comment Item with ID " + itemId);
         }
 
-        if (commentDtoInput.getCreated() == null) {
-            commentDtoInput.setCreated(LocalDateTime.now());
-        }
-
-        @Valid Comment comment = Comment.builder()
+        Comment comment = Comment.builder()
                 .text(commentDtoInput.getText())
                 .item(item)
                 .author(UserMapper.mapToUser(userDto))
@@ -171,10 +168,9 @@ public class ItemDbService implements ItemService {
                         LocalDateTime.now() : commentDtoInput.getCreated())
                 .build();
 
-        commentRepository.save(comment);
         log.debug("Comment has been created: {}", comment);
 
-        return CommentMapper.mapToDto(comment);
+        return CommentMapper.INSTANCE.mapToDto(commentRepository.save(comment));
     }
 
     @Override

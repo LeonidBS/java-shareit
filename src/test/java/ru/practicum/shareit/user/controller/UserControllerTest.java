@@ -81,7 +81,7 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void getById() {
+    void getByIdWhenIdExist() {
         when(userService.findById(1))
                 .thenReturn(UserMapper.mapToUserDto(user));
 

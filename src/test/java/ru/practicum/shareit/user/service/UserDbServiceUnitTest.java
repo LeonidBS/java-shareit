@@ -70,10 +70,9 @@ class UserDbServiceUnitTest {
                     "user" + j, "user" + j + "@user.com")); ;
         }
 
-        Page<User> page2 = new PageImpl<>(list2, pageable1, 0);
+        Page<User> page2 = new PageImpl<>(list2, pageable2, 0);
 
         when(userRepository.findAll(pageable1)).thenReturn(page1);
-        List<User> qwe = page1.toList();
         when(userRepository.findAll(pageable2)).thenReturn(page2);
 
         List<UserDto> retrievedPage1 = userDbService.findAll(0, 5);

@@ -107,7 +107,7 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void getById() {
+    void getByIdWhenRequestExist() {
         int userID = 1;
         int requestID = 1;
         String itemsString = mapper.writeValueAsString(List.of(itemDto));
@@ -131,7 +131,7 @@ class ItemRequestControllerTest {
 
     @SneakyThrows
     @Test
-    void create() {
+    void createWhenInputIsCorrect() {
         int requestorID = 1;
         ItemRequestDtoInput itemRequestDtoInput = ItemRequestDtoInput.builder()
                 .description("new itemRequest")
@@ -160,5 +160,4 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.requestorName", is(requestor.getName())))
                 .andExpect(jsonPath("$.created", containsString(created.toString())));
     }
-
 }

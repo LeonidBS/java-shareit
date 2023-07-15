@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.repository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -40,5 +41,11 @@ class ItemRequestRepositoryTest {
         assertEquals(targetItemRequest.getDescription(), itemRequest.getDescription());
         assertEquals(itemRequest.getRequestor(), requestor);
         assertNull(targetItemRequest.getRequestor());
+    }
+
+    @AfterEach
+    void cleanDatabase() {
+        itemRequestRepository.deleteAllItemRequest();
+        userRepository.deleteAllUser();
     }
 }

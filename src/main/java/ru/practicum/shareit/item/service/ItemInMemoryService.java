@@ -146,7 +146,7 @@ public class ItemInMemoryService implements ItemService {
                 .created(commentDtoInput.getCreated())
                 .build();
 
-        return CommentMapper.mapToDto(commentsInMemoryRepository.save(comment));
+        return CommentMapper.INSTANCE.mapToDto(commentsInMemoryRepository.save(comment));
     }
 
     @Override

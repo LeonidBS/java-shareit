@@ -7,7 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.IdNotFoundException;
-import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
@@ -30,9 +31,9 @@ public class ItemRequestDbService implements ItemRequestService {
 
     private final ItemRequestRepository itemRequestRepository;
     @Qualifier("dbService")
-    private final ItemService itemService;
-    @Qualifier("dbService")
     private final UserService userService;
+    private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
 
     @Override
@@ -104,7 +105,10 @@ public class ItemRequestDbService implements ItemRequestService {
 
     private void setListItemDto(ItemRequestDto requestDto) {
 
-        requestDto.setItems(itemService.findByItemRequestId(requestDto.getId()));
+        requestDto.setItems(itemMapper.mapListToItemDto(itemRepository
+                .findByItemRequestId(requestDto.getId())));
+
+       // requestDto.setItems(itemService.findByItemRequestId(requestDto.getId()));
     }
 
 }

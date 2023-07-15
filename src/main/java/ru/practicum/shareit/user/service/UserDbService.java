@@ -105,7 +105,7 @@ public class UserDbService implements UserService {
     public void deleteById(Integer id) {
         PageRequest page = PageRequest.of(0, 1);
 
-        commentRepository.deleteCommentsByUserId(id);
+        commentRepository.deleteByAuthorId(id);
 
         if (itemRepository.findByOwnerIdOrderById(id, page).toList().size() != 0) {
             itemRepository.updateItemsAsIsNotAvailableByUserId(id);

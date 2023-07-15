@@ -31,11 +31,15 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
             "AND item.available = TRUE")
     Page<Item> findBySearchText(String text, Pageable page);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Item item " +
             "SET item.available=false, item.owner=null " +
             "WHERE item.owner.id = ?1 ")
     void updateItemsAsIsNotAvailableByUserId(Integer userId);
 
     List<Item> findByItemRequestId(Integer itemRequestId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Item CASCADE")
+    void deleteAllItem();
 }

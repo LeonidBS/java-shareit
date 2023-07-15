@@ -14,15 +14,13 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Slf4j
 @RestController
 @RequestMapping(path = "/requests")
-@RequiredArgsConstructor
 @Validated
+@RequiredArgsConstructor
 public class ItemRequestController {
+
     private final ItemRequestDbService itemRequestService;
 
     @GetMapping
