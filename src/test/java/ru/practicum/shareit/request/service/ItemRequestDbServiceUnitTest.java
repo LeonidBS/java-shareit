@@ -39,7 +39,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ItemRequestDbServiceUnitTest {
-
     @Mock
     private ItemRequestRepository itemRequestRepository;
 
@@ -87,8 +86,8 @@ class ItemRequestDbServiceUnitTest {
         List<ItemRequestDto> targetListDto = itemRequestDbService.findOwn(requestorId);
 
         assertEquals(sourceDtoList, targetListDto);
-        InOrder inOrder = inOrder(userDbService, itemRequestRepository
-                , itemRepository, itemMapper);
+        InOrder inOrder = inOrder(userDbService, itemRequestRepository,
+                itemRepository, itemMapper);
         inOrder.verify(userDbService, times(1))
                 .findById(requestorId);
         inOrder.verify(itemRequestRepository, times(1))
@@ -213,12 +212,12 @@ class ItemRequestDbServiceUnitTest {
         when(userDbService.findById(requestorId)).thenReturn(UserMapper.mapToUserDto(requestor));
         when(itemRequestRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        ItemRequestDto retrievedDto = itemRequestDbService.create(newItemRequestInput, requestorId);
+        ItemRequestDto targetDto = itemRequestDbService.create(newItemRequestInput, requestorId);
 
-        assertEquals("new request", retrievedDto.getDescription());
-        assertNotNull(retrievedDto.getCreated());
-        assertEquals(1, retrievedDto.getRequestorId());
-        assertEquals("requestor", retrievedDto.getRequestorName());
-        assertNull(retrievedDto.getItems());
+        assertEquals("new request", targetDto.getDescription());
+        assertNotNull(targetDto.getCreated());
+        assertEquals(1, targetDto.getRequestorId());
+        assertEquals("requestor", targetDto.getRequestorName());
+        assertNull(targetDto.getItems());
     }
 }

@@ -28,23 +28,19 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserDbServiceUnitTest {
-
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
     private UserDbService userDbService;
 
-    private static User newUser = new User();
     private static User existUser = new User();
     private static User updatedUser = new User();
 
     @BeforeAll
     static void setUp() {
-
-        newUser = InstanceFactory.newUser(null, "newUser", "new.user@user.com");
         existUser = InstanceFactory.newUser(1, "existUser", "exist.user@user.com");
-        updatedUser =  InstanceFactory.newUser(1, "updatedUser", "updated.user@user.com");
+        updatedUser = InstanceFactory.newUser(1, "updatedUser", "updated.user@user.com");
     }
 
     @Test
@@ -67,7 +63,7 @@ class UserDbServiceUnitTest {
 
         for (int j = 6; j < 9; j++) {
             list1.add(InstanceFactory.newUser(j,
-                    "user" + j, "user" + j + "@user.com")); ;
+                    "user" + j, "user" + j + "@user.com"));
         }
 
         Page<User> page2 = new PageImpl<>(list2, pageable2, 0);
@@ -79,7 +75,7 @@ class UserDbServiceUnitTest {
         List<UserDto> retrievedPage2 = userDbService.findAll(5, 5);
 
         assertEquals(retrievedPage1, UserMapper.mapListToUserDto(page1.toList()));
-        assertEquals(retrievedPage2,  UserMapper.mapListToUserDto(page2.toList()));
+        assertEquals(retrievedPage2, UserMapper.mapListToUserDto(page2.toList()));
         verify(userRepository, times(1))
                 .findAll(pageable1);
         verify(userRepository, times(1))
@@ -89,6 +85,7 @@ class UserDbServiceUnitTest {
     @Test
     void findByIdWhenUserFoundThenReturnedUser() {
         int userId = 1;
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(existUser));
 
         UserDto retrivedUserDto = userDbService.findById(userId);
@@ -102,6 +99,7 @@ class UserDbServiceUnitTest {
     @Test
     void findByIdWhenUserNotFoundThenExceptionThrown() {
         int userId = 0;
+
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class,
@@ -151,8 +149,8 @@ class UserDbServiceUnitTest {
 
         when(userRepository.findById(updatedUser.getId())).thenReturn(Optional.of(existUser));
         when(userRepository.save(updatedUser)).thenReturn(updatedUser);
-        UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
 
+        UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
         UserDto retrivedUserDto = userDbService.update(updatedUser);
 
         assertEquals(updatedUserDto, retrivedUserDto);
@@ -167,10 +165,12 @@ class UserDbServiceUnitTest {
     @Test
     void updateByPatchWhenUserNotFoundNotUpdatedThenExceptionThrown() {
         UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
+
         when(userRepository.findById(updatedUser.getId())).thenReturn(Optional.empty());
 
         IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class,
                 () -> userDbService.updateByPatch(updatedUserDto, updatedUser.getId()));
+
         assertEquals("There is no User with ID: " + updatedUser.getId(),
                 idNotFoundException.getMessage());
 

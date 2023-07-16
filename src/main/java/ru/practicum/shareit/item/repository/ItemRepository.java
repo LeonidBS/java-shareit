@@ -38,8 +38,4 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
     void updateItemsAsIsNotAvailableByUserId(Integer userId);
 
     List<Item> findByItemRequestId(Integer itemRequestId);
-
-    @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM Item CASCADE")
-    void deleteAllItem();
 }

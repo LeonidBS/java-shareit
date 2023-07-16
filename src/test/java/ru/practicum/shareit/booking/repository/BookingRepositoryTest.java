@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.repository;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -9,8 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.comment.repository.CommentRepository;
-import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -27,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DataJpaTest
 @ActiveProfiles(profiles = "test")
 class BookingRepositoryTest {
-
     @Autowired
     private ItemRequestRepository itemRequestRepository;
 
@@ -40,12 +36,8 @@ class BookingRepositoryTest {
     @Autowired
     private BookingRepository bookingRepository;
 
-    @Autowired
-    private CommentRepository commentRepository;
-
     @Test
     void findByItemOwnerIdAndStartLessThanAndEndGreaterThanOrderByEndDesc() {
-
         User owner = InstanceFactory.newUser(null, "owner",
                 "owner@user.com");
         User booker = InstanceFactory.newUser(null, "booker",
@@ -59,9 +51,6 @@ class BookingRepositoryTest {
         Item itemWithRequest = InstanceFactory.newItem(null, "itemWithRequest",
                 "good itemWithRequest", true, owner, itemRequest);
         itemRepository.save(itemWithRequest);
-        ItemDtoForBooking itemDtoForBookingWithRequest = InstanceFactory.newItemDtoForBooking(1,
-                "itemWithRequest", "good itemWithRequest",
-                true, 2, 1);
 
         LocalDateTime pastStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -92,14 +81,5 @@ class BookingRepositoryTest {
 
         assertEquals(1, targetList.size());
         assertEquals(presentBooking, targetList.get(0));
-    }
-
-    @AfterEach
-    void cleanDatabase() {
-        commentRepository.deleteAllComment();
-        bookingRepository.deleteAllBooking();
-        itemRepository.deleteAllItem();
-        itemRequestRepository.deleteAllItemRequest();
-        userRepository.deleteAllUser();
     }
 }

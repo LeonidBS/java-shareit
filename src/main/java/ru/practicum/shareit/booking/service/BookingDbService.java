@@ -31,7 +31,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BookingDbService implements BookingService {
     private final BookingRepository bookingRepository;
+
     private final ItemRepository itemRepository;
+
     @Qualifier("dbService")
     private final UserService userService;
 
@@ -232,6 +234,7 @@ public class BookingDbService implements BookingService {
                         BookingStatus.APPROVED,
                         LocalDateTime.now()));
     }
+
     @Override
     public BookingDtoForItem findNextBookingByItemId(Integer itemId) {
 

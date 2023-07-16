@@ -32,7 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
-
     @Mock
     private @Qualifier("dbService") UserService userService;
 
@@ -157,13 +156,11 @@ class UserControllerTest {
     @SneakyThrows
     @Test
     void updateWhenUserCorrect() {
-
         User updatedUser = User.builder()
                 .id(1)
                 .name("updated")
                 .email("updated@user.com")
                 .build();
-
         UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
 
         when(userService.update(updatedUser))
@@ -187,7 +184,6 @@ class UserControllerTest {
         UserDto dto = UserDto.builder()
                 .email("updated@user.com")
                 .build();
-
         UserDto updatedDto = UserDto.builder()
                 .name("user")
                 .email("updated@user.com")

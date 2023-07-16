@@ -19,16 +19,10 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.comment.model.Comment;
-import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForBooking;
-import ru.practicum.shareit.item.dto.ItemDtoWithComments;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
@@ -58,26 +52,9 @@ class BookingControllerTest {
 
     private MockMvc mvc;
 
-    private User owner;
-    private User requestor;
-    private User author;
     private User booker;
-    private ItemRequest itemRequest;
-    private ItemDto itemDto;
-
-    private ItemDto secondItemDto;
-    private ItemDtoWithComments itemDtoWithComments;
-    private Item itemWithRequest;
-    private Item item;
-    private Item secondItem;
-    private Comment comment;
-    private Booking pastBooking;
-    private Booking futureBooking;
-    private Booking presentBooking;
-    private Booking rejectedBooking;
     private BookingDto pastBookingDto;
     private BookingDto futureBookingDto;
-    private BookingDto presentBookingDto;
     private BookingDto rejectedBookingDto;
     private ItemDtoForBooking itemDtoForBookingWithRequest;
     private ItemDtoForBooking itemDtoForBooking;
@@ -89,34 +66,14 @@ class BookingControllerTest {
                 .standaloneSetup(bookingController)
                 .build();
 
-        requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
-        owner = InstanceFactory.newUser(2, "owner", "owner@user.com");
-        author = InstanceFactory.newUser(3, "author", "author@user.com");
         booker = InstanceFactory.newUser(4, "booker", "booker@user.com");
 
-        itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
-
-        secondItem = InstanceFactory.newItem(1, "secondItem", "good secondItem",
-                true, owner, null);
-        itemDto = InstanceFactory.newItemDto(1, "item", "good item", true,
-                2, "owner", null, 1);
-        secondItemDto = InstanceFactory.newItemDto(1, "secondItem", "good secondItem", true,
-                2, "owner", null, 1);
-        comment = InstanceFactory.newComment(1, "commnet", item, author, LocalDateTime.now());
-        itemDtoWithComments = InstanceFactory.newItemDtoWithComments(1, "item", "good item",
-                true, null, null, null, 2, "owner",
-                itemRequest.getCreated(), 0);
-        itemWithRequest = InstanceFactory.newItem(1, "itemWithRequest",
-                "good itemWithRequest", true, owner, itemRequest);
-        item = InstanceFactory.newItem(1, "item", "good item",
-                true, owner, null);
         itemDtoForBookingWithRequest = InstanceFactory.newItemDtoForBooking(1,
                 "itemWithRequest", "good itemWithRequest",
                 true, 2, 1);
         itemDtoForBooking = InstanceFactory.newItemDtoForBooking(1,
                 "item", "good item",
                 true, 2, null);
-
 
         LocalDateTime pastStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -131,24 +88,12 @@ class BookingControllerTest {
         LocalDateTime currentEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusWeeks(1)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
 
-        pastBooking = InstanceFactory.newBooking(1, pastStartDateTime,
-                pastEndDateTime, itemWithRequest, booker, BookingStatus.APPROVED);
-        futureBooking = InstanceFactory.newBooking(4, futureStartDateTime,
-                futureEndDateTime, itemWithRequest, requestor, BookingStatus.WAITING);
-        presentBooking = InstanceFactory.newBooking(3, currentStartDateTime,
-                currentEndDateTime, item, author, BookingStatus.APPROVED);
-        rejectedBooking = InstanceFactory.newBooking(2, currentStartDateTime,
-                currentEndDateTime, item, booker, BookingStatus.REJECTED);
-
         pastBookingDto = InstanceFactory.newBookingDto(1, pastStartDateTime,
                 pastEndDateTime, BookingStatus.APPROVED, UserMapper.mapToUserDto(booker),
                 itemDtoForBookingWithRequest);
         futureBookingDto = InstanceFactory.newBookingDto(4, futureStartDateTime,
                 futureEndDateTime, BookingStatus.WAITING, UserMapper.mapToUserDto(booker),
                 itemDtoForBookingWithRequest);
-        presentBookingDto = InstanceFactory.newBookingDto(3, currentStartDateTime,
-                currentEndDateTime, BookingStatus.APPROVED, UserMapper.mapToUserDto(booker),
-                itemDtoForBooking);
         rejectedBookingDto = InstanceFactory.newBookingDto(2, currentStartDateTime,
                 currentEndDateTime, BookingStatus.REJECTED, UserMapper.mapToUserDto(booker),
                 itemDtoForBooking);
@@ -190,9 +135,7 @@ class BookingControllerTest {
     @Test
     void findAllByOwnerIdAndStatusThenReturnBookingDto() {
         int ownerId = 2;
-
         List<BookingDto> sourceDtoList = List.of(rejectedBookingDto);
-        String stringSourceDtoList = mapper.writeValueAsString(sourceDtoList);
 
         when(bookingService.findAllByOwnerIdAndStatus(ownerId,
                 SearchBookingStatus.REJECTED, 0, 10))

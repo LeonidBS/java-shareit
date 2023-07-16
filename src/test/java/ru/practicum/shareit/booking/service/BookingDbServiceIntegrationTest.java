@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:clean.sql")
 class BookingDbServiceIntegrationTest {
-
     private final EntityManager em;
     private final BookingService bookingService;
 
@@ -67,5 +68,10 @@ class BookingDbServiceIntegrationTest {
         assertEquals(itemDtoForBookingWithRequest, targetDto.getItem());
         assertEquals(UserMapper.mapToUserDto(booker), targetDto.getBooker());
         assertEquals(BookingStatus.APPROVED, targetDto.getStatus());
+    }
+
+    @AfterEach
+    void tearDown() {
+        em.clear();
     }
 }

@@ -4,7 +4,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -37,9 +36,9 @@ public class InstanceFactory {
     }
 
     public static ItemDto newItemDto(Integer id, String name, String description,
-                                      Boolean available, Integer ownerId,
-                                      String ownerName, Integer bookingQuantity,
-                                      Integer requestId) {
+                                     Boolean available, Integer ownerId,
+                                     String ownerName, Integer bookingQuantity,
+                                     Integer requestId) {
         return ItemDto.builder()
                 .id(id)
                 .name(name)
@@ -53,7 +52,7 @@ public class InstanceFactory {
     }
 
     public static ItemDtoForBooking newItemDtoForBooking(Integer id, String name, String description,
-                                                  Boolean available, Integer ownerId, Integer requestId) {
+                                                         Boolean available, Integer ownerId, Integer requestId) {
         return ItemDtoForBooking.builder()
                 .id(id)
                 .name(name)
@@ -87,8 +86,8 @@ public class InstanceFactory {
     }
 
     public static Item newItem(Integer id, String name, String description,
-                                      Boolean available, User owner,
-                                      ItemRequest itemRequest) {
+                               Boolean available, User owner,
+                               ItemRequest itemRequest) {
         return Item.builder()
                 .id(id)
                 .name(name)
@@ -100,7 +99,7 @@ public class InstanceFactory {
     }
 
     public static ItemRequest newItemRequest(Integer id, String description,
-                                              LocalDateTime created, User requestor) {
+                                             LocalDateTime created, User requestor) {
         return ItemRequest.builder()
                 .id(id)
                 .description(description)
@@ -135,7 +134,7 @@ public class InstanceFactory {
     }
 
     public static BookingDtoForItem newBookingDtoForItem(Integer id, LocalDateTime start, LocalDateTime end,
-                                     BookingStatus status, Integer bookerId) {
+                                                         BookingStatus status, Integer bookerId) {
         return BookingDtoForItem.builder()
                 .id(id)
                 .start(start)
@@ -146,7 +145,7 @@ public class InstanceFactory {
     }
 
     public static BookingDto newBookingDto(Integer id, LocalDateTime start, LocalDateTime end,
-                                                  BookingStatus status, UserDto booker,
+                                           BookingStatus status, UserDto booker,
                                            ItemDtoForBooking item) {
         return BookingDto.builder()
                 .id(id)
@@ -161,7 +160,7 @@ public class InstanceFactory {
     public static Comment newComment(Integer id, String text,
                                      Item item, User author,
                                      LocalDateTime created) {
-        return  Comment.builder()
+        return Comment.builder()
                 .id(id)
                 .text(text)
                 .item(item)
@@ -170,25 +169,10 @@ public class InstanceFactory {
                 .build();
     }
 
-    public static CommentDto newCommentDto(Integer id, String text,
-                                           Integer itemId, String itemName,
-                                           Integer authorId, String authorName,
-                                           LocalDateTime created) {
-        return  CommentDto.builder()
-                .id(id)
-                .text(text)
-                .itemId(itemId)
-                .itemName(itemName)
-                .authorId(authorId)
-                .authorName(authorName)
-                .created(created)
-                .build();
-    }
-
     public static CommentDtoForItem newCommentDtoForItem(Integer id, String text,
-                                           Integer itemId, Integer authorId, String authorName,
-                                           LocalDateTime created) {
-        return  CommentDtoForItem.builder()
+                                                         Integer itemId, Integer authorId, String authorName,
+                                                         LocalDateTime created) {
+        return CommentDtoForItem.builder()
                 .id(id)
                 .text(text)
                 .itemId(itemId)

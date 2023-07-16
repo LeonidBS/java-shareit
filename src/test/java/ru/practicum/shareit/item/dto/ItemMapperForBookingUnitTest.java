@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ItemMapperForBookingUnitTest {
-
     @Test
     void mapToItemDtoWhenOwnerNotNullItemRequestNotNull() {
         User requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");

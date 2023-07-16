@@ -33,7 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class ItemRequestControllerTest {
-
     @Mock
     private ItemRequestDbService itemRequestService;
 
@@ -64,6 +63,7 @@ class ItemRequestControllerTest {
     void findOwnWhenUserExistThenReturnRequests() {
         int userID = 1;
         String itemsString = mapper.writeValueAsString(List.of(itemDto));
+
         when(itemRequestService.findOwn(userID))
                 .thenReturn(List.of(itemRequestDto));
 
@@ -86,6 +86,7 @@ class ItemRequestControllerTest {
     void findAllExceptOwnWhenUserExistThenReturnRequests() {
         int userID = 3;
         String itemsString = mapper.writeValueAsString(List.of(itemDto));
+
         when(itemRequestService.findAllExceptOwn(userID, 0, 10))
                 .thenReturn(List.of(itemRequestDto));
 
@@ -111,6 +112,7 @@ class ItemRequestControllerTest {
         int userID = 1;
         int requestID = 1;
         String itemsString = mapper.writeValueAsString(List.of(itemDto));
+
         when(itemRequestService.getById(requestID, userID))
                 .thenReturn(itemRequestDto);
 
@@ -137,6 +139,7 @@ class ItemRequestControllerTest {
                 .description("new itemRequest")
                 .build();
         LocalDateTime created = LocalDateTime.now();
+
         when(itemRequestService.create(itemRequestDtoInput, requestorID))
                 .thenReturn(ItemRequestDto.builder()
                         .id(1)

@@ -59,8 +59,4 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "SET b.booker=null " +
             "WHERE b.booker.id = ?1 ")
     void updateBookingsDeletingByUserId(Integer userId);
-
-    @Modifying(clearAutomatically = true)
-    @Query("DELETE FROM Booking CASCADE")
-    void deleteAllBooking();
 }

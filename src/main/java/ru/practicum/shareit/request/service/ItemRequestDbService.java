@@ -35,13 +35,12 @@ public class ItemRequestDbService implements ItemRequestService {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
 
-
     @Override
     public List<ItemRequestDto> findOwn(Integer requestorId) {
         userService.findById(requestorId);
 
-        return itemRequestRepository.
-                findByRequestorIdOrderByCreatedDesc(requestorId).stream()
+        return itemRequestRepository
+                .findByRequestorIdOrderByCreatedDesc(requestorId).stream()
                 .map(r ->
                         setListItemDto(ItemRequestMapper.INSTANCE.mapToDto(r))
                 )

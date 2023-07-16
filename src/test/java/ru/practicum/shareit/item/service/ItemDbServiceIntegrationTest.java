@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,13 +28,14 @@ import static org.hamcrest.Matchers.equalTo;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:clean.sql")
 class ItemDbServiceIntegrationTest {
 
     private final EntityManager em;
     private final ItemDbService itemDbService;
 
     @Test
-    void createComment() {
+    void createCommentWhetInputCorrect() {
         int userId = 3;
         int itemId = 1;
         User requestor = InstanceFactory.newUser(null, "requestor", "requestor@user.com");
@@ -50,7 +52,6 @@ class ItemDbServiceIntegrationTest {
         Booking booking = InstanceFactory.newBooking(null, LocalDateTime.now().minusMonths(2),
                 LocalDateTime.now().minusMonths(1), item, author, BookingStatus.APPROVED);
         em.persist(booking);
-
         CommentDtoInput commentDtoInput = CommentDtoInput.builder()
                 .text("comment")
                 .created(LocalDateTime.now())
@@ -64,5 +65,10 @@ class ItemDbServiceIntegrationTest {
         assertThat(targetDto.getAuthorId(), equalTo(userId));
         assertThat(targetDto.getAuthorName(), equalTo("author"));
         assertThat(targetDto.getCreated(), equalTo(commentDtoInput.getCreated()));
+    }
+
+    @AfterEach
+    void tearDown() {
+        em.clear();
     }
 }

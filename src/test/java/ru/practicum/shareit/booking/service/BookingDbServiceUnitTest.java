@@ -23,15 +23,12 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.comment.model.Comment;
-import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.MyValidationException;
-import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -48,7 +45,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class BookingDbServiceUnitTest {
-
     @Mock
     private ItemRepository itemRepository;
 
@@ -57,36 +53,14 @@ class BookingDbServiceUnitTest {
     private UserService userDbService;
 
     @Mock
-    private ItemMapper itemMapper;
-
-    @Mock
-    private ItemMapperWithComments itemMapperWithComments;
-
-    @Mock
-    private CommentRepository commentRepository;
-
-    @Mock
     private BookingRepository bookingRepository;
-
-    @Mock
-    private ItemRequestRepository itemRequestRepository;
 
     @InjectMocks
     private BookingDbService bookingDbService;
 
-    private User owner;
     private User requestor;
-    private User author;
     private User booker;
-    private ItemRequest itemRequest;
-    private ItemDto itemDto;
-
-    private ItemDto secondItemDto;
-    private ItemDtoWithComments itemDtoWithComments;
     private Item itemWithRequest;
-    private Item item;
-    private Item secondItem;
-    private Comment comment;
     private Booking pastBooking;
     private Booking futureBooking;
     private Booking presentBooking;
@@ -96,35 +70,23 @@ class BookingDbServiceUnitTest {
     private BookingDto presentBookingDto;
     private BookingDto rejectedBookingDto;
     private ItemDtoForBooking itemDtoForBookingWithRequest;
-    private ItemDtoForBooking itemDtoForBooking;
 
     @BeforeEach
     void setUp() {
         requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
-        owner = InstanceFactory.newUser(2, "owner", "owner@user.com");
-        author = InstanceFactory.newUser(3, "author", "author@user.com");
+        User owner = InstanceFactory.newUser(2, "owner", "owner@user.com");
+        User author = InstanceFactory.newUser(3, "author", "author@user.com");
         booker = InstanceFactory.newUser(4, "booker", "booker@user.com");
 
-        itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
-
-        secondItem = InstanceFactory.newItem(1, "secondItem", "good secondItem",
-                true, owner, null);
-        itemDto = InstanceFactory.newItemDto(1, "item", "good item", true,
-                2, "owner", null, 1);
-        secondItemDto = InstanceFactory.newItemDto(1, "secondItem", "good secondItem", true,
-                2, "owner", null, 1);
-        comment = InstanceFactory.newComment(1, "commnet", item, author, LocalDateTime.now());
-        itemDtoWithComments = InstanceFactory.newItemDtoWithComments(1, "item", "good item",
-                true, null, null, null, 2, "owner",
-                itemRequest.getCreated(), 0);
+        ItemRequest itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
         itemWithRequest = InstanceFactory.newItem(1, "itemWithRequest",
                 "good itemWithRequest", true, owner, itemRequest);
-        item = InstanceFactory.newItem(1, "item", "good item",
+        Item item = InstanceFactory.newItem(1, "item", "good item",
                 true, owner, null);
         itemDtoForBookingWithRequest = InstanceFactory.newItemDtoForBooking(1,
                 "itemWithRequest", "good itemWithRequest",
                 true, 2, 1);
-        itemDtoForBooking = InstanceFactory.newItemDtoForBooking(1,
+        ItemDtoForBooking itemDtoForBooking = InstanceFactory.newItemDtoForBooking(1,
                 "item", "good item",
                 true, 2, null);
 
@@ -175,7 +137,6 @@ class BookingDbServiceUnitTest {
         Pageable pageable = PageRequest.of(from, size);
         PageRequest page = PageRequest.of(from, size);
         List<BookingDto> sourceListDto;
-        Page<BookingDto> sourcePageDto;
         List<Booking> sourceList;
         Page<Booking> sourcePage;
         List<BookingDto> targetListDto;
@@ -184,7 +145,6 @@ class BookingDbServiceUnitTest {
             case "ALL":
                 sourceListDto = List.of(pastBookingDto, futureBookingDto,
                         presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking, futureBooking,
                         presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
@@ -207,7 +167,6 @@ class BookingDbServiceUnitTest {
 
             case "CURRENT":
                 sourceListDto = List.of(presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -227,7 +186,6 @@ class BookingDbServiceUnitTest {
 
             case "PAST":
                 sourceListDto = List.of(pastBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -247,7 +205,6 @@ class BookingDbServiceUnitTest {
 
             case "FUTURE":
                 sourceListDto = List.of(futureBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(futureBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -267,7 +224,6 @@ class BookingDbServiceUnitTest {
 
             case "WAITING":
                 sourceListDto = List.of(futureBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(futureBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -288,7 +244,6 @@ class BookingDbServiceUnitTest {
             case "REJECTED":
                 sourceListDto = List.of(pastBookingDto, futureBookingDto,
                         presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking, futureBooking,
                         presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
@@ -320,7 +275,6 @@ class BookingDbServiceUnitTest {
         Pageable pageable = PageRequest.of(from, size);
         PageRequest page = PageRequest.of(from, size);
         List<BookingDto> sourceListDto;
-        Page<BookingDto> sourcePageDto;
         List<Booking> sourceList;
         Page<Booking> sourcePage;
         List<BookingDto> targetListDto;
@@ -329,7 +283,6 @@ class BookingDbServiceUnitTest {
             case "ALL":
                 sourceListDto = List.of(pastBookingDto, futureBookingDto,
                         presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking, futureBooking,
                         presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
@@ -352,7 +305,6 @@ class BookingDbServiceUnitTest {
 
             case "CURRENT":
                 sourceListDto = List.of(presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -372,7 +324,6 @@ class BookingDbServiceUnitTest {
 
             case "PAST":
                 sourceListDto = List.of(pastBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -392,7 +343,6 @@ class BookingDbServiceUnitTest {
 
             case "FUTURE":
                 sourceListDto = List.of(futureBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(futureBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -412,7 +362,6 @@ class BookingDbServiceUnitTest {
 
             case "WAITING":
                 sourceListDto = List.of(futureBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(futureBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);
 
@@ -433,7 +382,6 @@ class BookingDbServiceUnitTest {
             case "REJECTED":
                 sourceListDto = List.of(pastBookingDto, futureBookingDto,
                         presentBookingDto, rejectedBookingDto);
-                sourcePageDto = new PageImpl<>(sourceListDto, pageable, 0);
                 sourceList = List.of(pastBooking, futureBooking,
                         presentBooking, rejectedBooking);
                 sourcePage = new PageImpl<>(sourceList, pageable, 0);

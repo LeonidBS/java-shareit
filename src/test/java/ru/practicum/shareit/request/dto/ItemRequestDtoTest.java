@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
 class ItemRequestDtoTest {
-
     @Autowired
     private JacksonTester<ItemRequestDto> json;
 
@@ -30,7 +29,7 @@ class ItemRequestDtoTest {
         ItemDto itemDto = InstanceFactory.newItemDto(1,
                 "itemDto", "good itemDto", true,
                 2, "owner", null, 1);
-        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("" +
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern(
                 "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
         LocalDateTime created = LocalDateTime.now();
         ItemRequestDto itemRequestDto = InstanceFactory.newItemRequestDto(1,

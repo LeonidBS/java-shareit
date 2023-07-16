@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.comment.dto.CommentDtoForItem;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
@@ -47,7 +46,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 class ItemControllerTest {
-
     @Mock
     private ItemService itemService;
 
@@ -55,21 +53,16 @@ class ItemControllerTest {
     private ItemController itemController;
 
     private final ObjectMapper mapper = new ObjectMapper();
-
     private MockMvc mvc;
     private User owner;
-    private User requestor;
     private User author;
     private ItemRequest itemRequest;
     private ItemDto itemDto;
     private ItemDto secondItemDto;
     private ItemDtoWithComments itemDtoWithComments;
     private Item item;
-    private Item secondItem;
     private Comment comment;
     private CommentDtoForItem commentDtoForItem;
-    private Booking lastBooking;
-    private Booking nextBooking;
     private BookingDtoForItem lastBookingDto;
     private BookingDtoForItem nextBookingDto;
 
@@ -80,21 +73,22 @@ class ItemControllerTest {
                 .standaloneSetup(itemController)
                 .build();
 
-        requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
+        User requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
         owner = InstanceFactory.newUser(2, "owner", "owner@user.com");
         author = InstanceFactory.newUser(3, "author", "author@user.com");
+
         itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
         item = InstanceFactory.newItem(1, "item", "good item",
                 true, owner, itemRequest);
-        secondItem = InstanceFactory.newItem(1, "secondItem", "good secondItem",
-                true, owner, null);
         itemDto = InstanceFactory.newItemDto(1, "item", "good item", true,
                 2, "owner", null, 1);
         secondItemDto = InstanceFactory.newItemDto(1, "secondItem", "good secondItem", true,
                 2, "owner", null, 1);
+
         comment = InstanceFactory.newComment(1, "comment", item, author, LocalDateTime.now());
         commentDtoForItem = InstanceFactory.newCommentDtoForItem(1, "comment",
                 item.getId(), author.getId(), author.getName(), comment.getCreated());
+
         LocalDateTime lastBookingStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         LocalDateTime lastBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(1)
@@ -103,18 +97,7 @@ class ItemControllerTest {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         LocalDateTime nextBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-//        LocalDateTime lastBookingStartDateTime = LocalDateTime.now().minusMonths(2)
-//                .minusNanos(LocalDateTime.now().minusMonths(2).getNano());
-//        LocalDateTime lastBookingEndDateTime = LocalDateTime.now().minusMonths(1)
-//                .minusNanos(LocalDateTime.now().minusMonths(1).getNano());
-//        LocalDateTime nextBookingStartDateTime = LocalDateTime.now().plusMonths(1)
-//                .minusNanos(LocalDateTime.now().plusMonths(1).getNano());
-//        LocalDateTime nextBookingEndDateTime = LocalDateTime.now().plusMonths(2)
-//                .minusNanos(LocalDateTime.now().plusMonths(2).getNano());
-//        Booking lastBooking = InstanceFactory.newBooking(null, lastBookingStartDateTime,
-//                lastBookingEndDateTime, item, requestor, BookingStatus.APPROVED);
-//        Booking nextBooking = InstanceFactory.newBooking(null, nextBookingStartDateTime,
-//                nextBookingEndDateTime, item, requestor, BookingStatus.APPROVED);
+
         lastBookingDto = InstanceFactory.newBookingDtoForItem(1, lastBookingStartDateTime,
                 lastBookingEndDateTime, BookingStatus.APPROVED, requestor.getId());
         nextBookingDto = InstanceFactory.newBookingDtoForItem(2, nextBookingStartDateTime,
@@ -132,8 +115,6 @@ class ItemControllerTest {
 
         List<ItemDtoWithComments> itemsListDtoWithComments = List.of(itemDtoWithComments);
         String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDtoForItem));
-//        String stringLastBookingDto = mapper.writeValueAsString(lastBookingDto);
-//        String stringNextBookingDto = mapper.writeValueAsString(nextBookingDto);
 
         when(itemService.findByOwnerId(ownerId, 0, 10))
                 .thenReturn(itemsListDtoWithComments);
@@ -163,7 +144,6 @@ class ItemControllerTest {
     void findByIdWhenUserIsOwner() {
         int userId = 1;
         int itemId = 1;
-
         String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDtoForItem));
 
         when(itemService.findByIdWithOwnerValidation(itemId, userId))
@@ -192,7 +172,6 @@ class ItemControllerTest {
     @Test
     void getBySearchTextWhenPageParametersCorrectThenReturnItemsDto() {
         String text = "second";
-
         List<ItemDto> itemsListDto = List.of(secondItemDto);
 
         when(itemService.findBySearchText(text, 0, 10))
@@ -271,31 +250,31 @@ class ItemControllerTest {
     @SneakyThrows
     @Test
     void createComment() {
-            int authorId = 3;
-            int itemId = 1;
+        int authorId = 3;
+        int itemId = 1;
         CommentDtoInput commentDtoInput = CommentDtoInput.builder()
-                    .text("comment")
-                    .created(comment.getCreated())
-                    .build();
+                .text("comment")
+                .created(comment.getCreated())
+                .build();
 
-            when(itemService.createComment(commentDtoInput, itemId, authorId))
-                    .thenReturn(CommentMapper.INSTANCE.mapToDto(comment));
+        when(itemService.createComment(commentDtoInput, itemId, authorId))
+                .thenReturn(CommentMapper.INSTANCE.mapToDto(comment));
 
-            mvc.perform(post("/items/" + itemId + "/comment")
-                            .content(mapper.writeValueAsString(commentDtoInput))
-                            .header("X-Sharer-User-Id", authorId)
-                            .characterEncoding(StandardCharsets.UTF_8)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id", is(comment.getId())))
-                    .andExpect(jsonPath("$.text", is(commentDtoInput.getText())))
-                    .andExpect(jsonPath("$.itemId", is(itemId)))
-                    .andExpect(jsonPath("$.itemName", is(item.getName())))
-                    .andExpect(jsonPath("$.authorId", is(authorId)))
-                    .andExpect(jsonPath("$.authorName", is(author.getName())))
-                    .andExpect(jsonPath("$.created", containsString(commentDtoInput
-                            .getCreated().toString())));
+        mvc.perform(post("/items/" + itemId + "/comment")
+                        .content(mapper.writeValueAsString(commentDtoInput))
+                        .header("X-Sharer-User-Id", authorId)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(comment.getId())))
+                .andExpect(jsonPath("$.text", is(commentDtoInput.getText())))
+                .andExpect(jsonPath("$.itemId", is(itemId)))
+                .andExpect(jsonPath("$.itemName", is(item.getName())))
+                .andExpect(jsonPath("$.authorId", is(authorId)))
+                .andExpect(jsonPath("$.authorName", is(author.getName())))
+                .andExpect(jsonPath("$.created", containsString(commentDtoInput
+                        .getCreated().toString())));
     }
 
     @SneakyThrows
@@ -304,7 +283,7 @@ class ItemControllerTest {
         int ownerId = 2;
         int itemId = 1;
         ItemDtoInput updatedItemDtoInput = ItemDtoInput.builder()
-                      .description("very good item")
+                .description("very good item")
                 .available(true)
                 .build();
 

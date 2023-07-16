@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.repository;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +8,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
-import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -25,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DataJpaTest
 @ActiveProfiles(profiles = "test")
 class ItemRepositoryTest {
-
     @Autowired
     private ItemRequestRepository itemRequestRepository;
 
@@ -35,18 +31,11 @@ class ItemRepositoryTest {
     @Autowired
     private ItemRepository itemRepository;
 
-    @Autowired
-    private BookingRepository bookingRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
     private User requestor;
     private User owner;
     private ItemRequest itemRequest;
     private Item item1;
     private Item item2;
-
 
     @BeforeEach
     private void setup() {
@@ -105,14 +94,5 @@ class ItemRepositoryTest {
         assertNull(updatedItem1.getOwner());
         assertFalse(updatedItem2.getAvailable());
         assertNull(updatedItem2.getOwner());
-    }
-
-    @AfterEach
-    void cleanDatabase() {
-        commentRepository.deleteAllComment();
-        bookingRepository.deleteAllBooking();
-        itemRepository.deleteAllItem();
-        itemRequestRepository.deleteAllItemRequest();
-        userRepository.deleteAllUser();
     }
 }

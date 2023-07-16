@@ -9,7 +9,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class UserMapperTest {
-
     User user = User.builder()
             .id(1)
             .name("user")
@@ -21,6 +20,7 @@ class UserMapperTest {
             .name("user")
             .email("user@user.com")
             .build();
+
     @Test
     void mapToUserDto() {
         assertEquals(UserMapper.mapToUserDto(user), dto);
@@ -38,13 +38,13 @@ class UserMapperTest {
 
         for (int i = 0; i < 5; i++) {
             users.add(User.builder()
-                    .id(i+1)
+                    .id(i + 1)
                     .name("user" + i)
                     .email("user" + i + "@user.com")
                     .build());
 
             dtos.add(UserDto.builder()
-                    .id(i+1)
+                    .id(i + 1)
                     .name("user" + i)
                     .email("user" + i + "@user.com")
                     .build());

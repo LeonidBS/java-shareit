@@ -34,8 +34,8 @@ import static org.hamcrest.Matchers.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:clean.sql")
 class UserDbServiceIntegrationTest {
-
     private final EntityManager em;
     private final @Qualifier("dbService") UserService userService;
 
@@ -76,7 +76,7 @@ class UserDbServiceIntegrationTest {
         Item item = InstanceFactory.newItem(null, "item", "description",
                 true, sourceUser, null);
         em.persist(item);
-        Booking booking = InstanceFactory.newBooking(null , LocalDateTime.now().plusMinutes(1),
+        Booking booking = InstanceFactory.newBooking(null, LocalDateTime.now().plusMinutes(1),
                 LocalDateTime.now().plusDays(1), item, sourceUser, BookingStatus.WAITING);
         em.persist(booking);
         Comment comment = InstanceFactory.newComment(null, "comment text1", item, sourceUser,
@@ -89,16 +89,16 @@ class UserDbServiceIntegrationTest {
         TypedQuery<User> queryUser = em.createQuery("SELECT u FROM User u", User.class);
         List<User> allUsers = queryUser.getResultList();
         TypedQuery<ItemRequest> queryRequest = em.createQuery("SELECT ir FROM ItemRequest ir", ItemRequest.class);
-        ItemRequest TargetRequest = queryRequest.getResultList().get(0);
+        ItemRequest targetRequest = queryRequest.getResultList().get(0);
         TypedQuery<Item> queryItem = em.createQuery("SELECT i FROM Item i", Item.class);
-        Item targetItem= queryItem.getResultList().get(0);
-        TypedQuery<Booking> queryBooking=  em.createQuery("SELECT b FROM Booking b", Booking.class);
-        Booking targetBooking= queryBooking.getResultList().get(0);
+        Item targetItem = queryItem.getResultList().get(0);
+        TypedQuery<Booking> queryBooking =  em.createQuery("SELECT b FROM Booking b", Booking.class);
+        Booking targetBooking = queryBooking.getResultList().get(0);
         TypedQuery<Comment> queryComment = em.createQuery("SELECT c FROM Comment c", Comment.class);
         List<Comment> allComments = queryComment.getResultList();
 
         assertThat(allUsers, is(empty()));
-        assertThat(TargetRequest.getRequestor(), is(nullValue()));
+        assertThat(targetRequest.getRequestor(), is(nullValue()));
         assertThat(targetItem.getAvailable(), equalTo(false));
         assertThat(targetItem.getOwner(), is(nullValue()));
         assertThat(targetBooking.getId(), equalTo(1));

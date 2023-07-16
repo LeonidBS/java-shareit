@@ -20,7 +20,6 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
-import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.MyValidationException;
@@ -44,7 +43,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ItemDbServiceUnitTest {
-
     @Mock
     private ItemRepository itemRepository;
 
@@ -75,12 +73,10 @@ class ItemDbServiceUnitTest {
     private User author;
     private ItemRequest itemRequest;
     private ItemDto itemDto;
-
     private ItemDto secondItemDto;
     private ItemDtoWithComments itemDtoWithComments;
     private Item item;
     private Item secondItem;
-    private Comment comment;
 
     @BeforeEach
     void setup() {
@@ -96,7 +92,6 @@ class ItemDbServiceUnitTest {
                 2, "owner", null, 1);
         secondItemDto = InstanceFactory.newItemDto(1, "secondItem", "good secondItem", true,
                 2, "owner", null, 1);
-        comment = InstanceFactory.newComment(1, "commnet", item, author, LocalDateTime.now());
         itemDtoWithComments = InstanceFactory.newItemDtoWithComments(1, "item", "good item",
                 true, null, null, null, 2, "owner",
                 itemRequest.getCreated(), 0);
@@ -135,9 +130,7 @@ class ItemDbServiceUnitTest {
         List<Item> list2 = List.of(secondItem);
         Page<Item> page2 = new PageImpl<>(list2, pageable2, 0);
         List<ItemDto> listDto1 = List.of(itemDto);
-        Page<ItemDto> pageDto1 = new PageImpl<>(listDto1, pageable1, 0);
         List<ItemDto> listDto2 = List.of(secondItemDto);
-        Page<ItemDto> pageDto2 = new PageImpl<>(listDto2, pageable2, 0);
 
         when(itemRepository.findBySearchText(text, pageable1)).thenReturn(page1);
         when(itemMapper.mapListToItemDto(list1)).thenReturn(listDto1);
@@ -148,12 +141,15 @@ class ItemDbServiceUnitTest {
         List<ItemDto> targetItemDtoPage2 = itemDbService.findBySearchText(text, 1, 1);
 
         assertEquals(listDto1, targetItemDtoPage1);
+
         InOrder inOrder = inOrder(itemRepository, itemMapper);
         inOrder.verify(itemRepository, times(1))
                 .findBySearchText(text, pageable1);
         inOrder.verify(itemMapper, times(1))
                 .mapListToItemDto(list1);
+
         assertEquals(listDto2, targetItemDtoPage2);
+
         inOrder = inOrder(itemRepository, itemMapper);
         inOrder.verify(itemRepository, times(1))
                 .findBySearchText(text, pageable2);
@@ -192,7 +188,7 @@ class ItemDbServiceUnitTest {
 
     @Test
     void updateWhenUserIsOwner() {
-int itemId = 1;
+        int itemId = 1;
         int ownerId = 2;
 
         ItemDtoInput updatedItemDtoInput = ItemDtoInput.builder()
@@ -232,7 +228,7 @@ int itemId = 1;
         when(userDbService.findById(ownerId)).thenReturn(UserMapper.mapToUserDto(owner));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
-        Executable executable = () ->  itemDbService.update(updatedItemDtoInput, ownerId, itemId);
+        Executable executable = () -> itemDbService.update(updatedItemDtoInput, ownerId, itemId);
 
         AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, executable);
         assertEquals("Access denied for ownerId " + ownerId,
@@ -253,7 +249,7 @@ int itemId = 1;
         when(bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(
                 anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class)))
                 .thenReturn(1);
-            when(commentRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(commentRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
         CommentDto targetDto = itemDbService.createComment(commentDtoInput, itemId, userId);
 
@@ -288,11 +284,11 @@ int itemId = 1;
                 anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class)))
                 .thenReturn(0);
 
-        Executable executable = () ->  itemDbService.createComment(commentDtoInput, itemId, userId);
+        Executable executable = () -> itemDbService.createComment(commentDtoInput, itemId, userId);
 
         MyValidationException myValidationException = assertThrows(MyValidationException.class, executable);
         assertEquals("User with ID " + userId +
-                " cannot comment Item with ID " + itemId,
+                        " cannot comment Item with ID " + itemId,
                 myValidationException.getMessage());
         InOrder inOrder = inOrder(userDbService, itemRepository,
                 bookingRepository);

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ import static org.hamcrest.Matchers.equalTo;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "classpath:clean.sql")
 class ItemMapperWithCommentsIntegrationTest {
-
     private final EntityManager em;
     private final ItemMapperWithComments itemMapperWithComments;
 
@@ -52,11 +53,13 @@ class ItemMapperWithCommentsIntegrationTest {
         em.persist(requestor);
         em.persist(owner);
         em.persist(author);
+
         itemRequest = InstanceFactory.newItemRequest(null, "request", LocalDateTime.now(), requestor);
         em.persist(itemRequest);
         item = InstanceFactory.newItem(null, "item", "good item",
                 true, owner, itemRequest);
         em.persist(item);
+
         LocalDateTime lastBookingStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         LocalDateTime lastBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(1)
@@ -65,6 +68,7 @@ class ItemMapperWithCommentsIntegrationTest {
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         LocalDateTime nextBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+
         Booking lastBooking = InstanceFactory.newBooking(null, lastBookingStartDateTime,
                 lastBookingEndDateTime, item, requestor, BookingStatus.APPROVED);
         Booking nextBooking = InstanceFactory.newBooking(null, nextBookingStartDateTime,
@@ -75,6 +79,7 @@ class ItemMapperWithCommentsIntegrationTest {
                 nextBooking.getEnd(), BookingStatus.APPROVED, requestor.getId());
         em.persist(lastBooking);
         em.persist(nextBooking);
+
         Comment comment = InstanceFactory.newComment(null, "comment", item,
                 author, LocalDateTime.now());
         commentDtoForItem = InstanceFactory.newCommentDtoForItem(1, "comment",
@@ -113,4 +118,8 @@ class ItemMapperWithCommentsIntegrationTest {
         assertThat(targetDto, equalTo(itemDtoWithComments));
     }
 
+    @AfterEach
+    void tearDown() {
+        em.clear();
+    }
 }
