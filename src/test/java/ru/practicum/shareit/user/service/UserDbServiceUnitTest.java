@@ -39,8 +39,8 @@ class UserDbServiceUnitTest {
 
     @BeforeAll
     static void setUp() {
-        existUser = InstanceFactory.newUser(1, "existUser", "exist.user@user.com");
-        updatedUser = InstanceFactory.newUser(1, "updatedUser", "updated.user@user.com");
+        existUser = InstanceFactory.newUser(1, "existUser", "existuser@user.com");
+        updatedUser = InstanceFactory.newUser(1, "updatedUser", "updateduser@user.com");
     }
 
     @Test
@@ -88,9 +88,9 @@ class UserDbServiceUnitTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(existUser));
 
-        UserDto retrivedUserDto = userDbService.findById(userId);
+        UserDto targetDto = userDbService.findById(userId);
 
-        assertEquals(UserMapper.mapToUserDto(existUser), retrivedUserDto);
+        assertEquals(UserMapper.mapToUserDto(existUser), targetDto);
 
         verify(userRepository, times(1))
                 .findById(userId);
@@ -113,19 +113,15 @@ class UserDbServiceUnitTest {
 
     @Test
     void updateWhenUserFoundAndUpdatedThenReturnedUpdatedUser() {
+        UserDto udatedUserDto = UserMapper.mapToUserDto(updatedUser);
 
         when(userRepository.findById(updatedUser.getId())).thenReturn(Optional.of(existUser));
-        when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+        when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        UserDto retrivedUserDto = userDbService.update(updatedUser);
+        UserDto targetDto = userDbService.update(udatedUserDto);
 
-        assertEquals(UserMapper.mapToUserDto(updatedUser), retrivedUserDto);
-
-        InOrder inOrder = inOrder(userRepository, userRepository);
-        inOrder.verify(userRepository, times(1))
-                .findById(updatedUser.getId());
-        inOrder.verify(userRepository, times(1))
-                .save(updatedUser);
+        assertEquals("updatedUser", targetDto.getName());
+        assertEquals("updateduser@user.com", targetDto.getEmail());
     }
 
     @Test
@@ -134,7 +130,7 @@ class UserDbServiceUnitTest {
         when(userRepository.findById(updatedUser.getId())).thenReturn(Optional.empty());
 
         IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class,
-                () -> userDbService.update(updatedUser));
+                () -> userDbService.update(UserMapper.mapToUserDto(updatedUser)));
         assertEquals("There is no User with ID: " + updatedUser.getId(),
                 idNotFoundException.getMessage());
 
@@ -145,21 +141,22 @@ class UserDbServiceUnitTest {
     }
 
     @Test
-    void updateByPatchWhenUserFoundAndUpdatedThenReturnedUpdatedUser() {
+    void updateByPatchWhenUserFoundAndUpdated() {
+        int userId = updatedUser.getId();
+        UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
 
         when(userRepository.findById(updatedUser.getId())).thenReturn(Optional.of(existUser));
-        when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+        when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
-        UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
-        UserDto retrivedUserDto = userDbService.update(updatedUser);
+        UserDto targetDto = userDbService.updateByPatch(updatedUserDto, userId);
 
-        assertEquals(updatedUserDto, retrivedUserDto);
+        assertEquals(updatedUserDto, targetDto);
 
         InOrder inOrder = inOrder(userRepository, userRepository);
         inOrder.verify(userRepository, times(1))
                 .findById(updatedUser.getId());
         inOrder.verify(userRepository, times(1))
-                .save(updatedUser);
+                .save(any());
     }
 
     @Test

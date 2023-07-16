@@ -163,7 +163,7 @@ class UserControllerTest {
                 .build();
         UserDto updatedUserDto = UserMapper.mapToUserDto(updatedUser);
 
-        when(userService.update(updatedUser))
+        when(userService.update(updatedUserDto))
                 .thenReturn(updatedUserDto);
 
         mvc.perform(put("/users")

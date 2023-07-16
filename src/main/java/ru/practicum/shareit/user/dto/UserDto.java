@@ -26,4 +26,11 @@ public class UserDto {
     @Pattern(regexp = "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$",
             message = "Format the passed email is not correct")
     private String email;
+
+    @Override
+    public String toString() {
+        return "{id=" + id
+                + ", name=" + name
+                + ", email=" + email + "}";
+    }
 }

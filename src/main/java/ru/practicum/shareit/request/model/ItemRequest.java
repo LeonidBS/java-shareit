@@ -42,14 +42,4 @@ public class ItemRequest {
     @ToString.Exclude
     @NotNull(message = "Parameter name is NULL")
     private User requestor;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ItemRequest)) return false;
-        return id != null && id.equals(((ItemRequest) o).getId())
-                && description.equals(((ItemRequest) o).getDescription())
-                && created.equals(((ItemRequest) o).getCreated())
-                && requestor.equals(((ItemRequest) o).getRequestor());
-    }
 }

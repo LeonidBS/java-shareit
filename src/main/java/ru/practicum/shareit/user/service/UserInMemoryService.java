@@ -60,8 +60,8 @@ public class UserInMemoryService implements UserService {
     }
 
     @Override
-    public UserDto update(User user) {
-
+    public UserDto update(UserDto useDto) {
+        User user = UserMapper.mapToUser(useDto);
         if (userInMemoryRepository.findById(user.getId()).isEmpty()) {
             log.error("User with ID {} has not been found", user.getId());
             throw new IdNotFoundException("There is no User with ID: " + user.getId());

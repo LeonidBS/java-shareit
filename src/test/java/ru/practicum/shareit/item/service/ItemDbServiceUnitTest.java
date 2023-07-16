@@ -196,13 +196,11 @@ class ItemDbServiceUnitTest {
                 .build();
         ItemDto updatedItemDto = InstanceFactory.newItemDto(1, "item", "updated good item",
                 true, 2, "owner", null, 1);
-        Item updatedItem = InstanceFactory.newItem(1, "item", "updated good item",
-                true, owner, itemRequest);
 
         when(userDbService.findById(ownerId)).thenReturn(UserMapper.mapToUserDto(owner));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
-        when(itemMapper.mapToItemDto(updatedItem)).thenReturn(updatedItemDto);
+        when(itemRepository.save(any(Item.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(itemMapper.mapToItemDto(any(Item.class))).thenReturn(updatedItemDto);
 
         ItemDto targetDto = itemDbService.update(updatedItemDtoInput, ownerId, itemId);
 

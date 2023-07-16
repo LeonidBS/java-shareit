@@ -51,16 +51,4 @@ public class Item {
     @JoinColumn(name = "request_id")
     @ToString.Exclude
     private ItemRequest itemRequest;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Item)) return false;
-        return id != null && id.equals(((Item) o).getId())
-                && name.equals(((Item) o).getName())
-                && description.equals(((Item) o).getDescription())
-                && available.equals(((Item) o).getAvailable())
-                && owner.equals(((Item) o).getOwner())
-                && itemRequest.equals(((Item) o).getItemRequest());
-    }
 }

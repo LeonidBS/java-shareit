@@ -35,15 +35,6 @@ public class User {
     private String email;
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        return id != null && id.equals(((User) o).getId())
-                && name.equals(((User) o).getName())
-                && email.equals(((User) o).getEmail());
-    }
-
-    @Override
     public String toString() {
         return "{id=" + id
                 + ", name=" + name

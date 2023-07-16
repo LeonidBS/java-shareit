@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
@@ -41,9 +40,9 @@ public class UserController {
     }
 
     @PutMapping
-    public UserDto update(@RequestBody User user) {
+    public UserDto update(@RequestBody UserDto userDto) {
 
-        return userService.update(user);
+        return userService.update(userDto);
     }
 
     @PatchMapping("/{id}")

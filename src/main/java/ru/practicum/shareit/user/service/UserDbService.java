@@ -17,7 +17,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -65,39 +64,37 @@ public class UserDbService implements UserService {
 
     @Override
     @Transactional
-    public UserDto update(User user) {
+    public UserDto update(UserDto userDto) {
 
-        if (userRepository.findById(user.getId()).isEmpty()) {
-            log.error("User with ID {} has not been found", user.getId());
-            throw new IdNotFoundException("There is no User with ID: " + user.getId());
-        }
+        User userToUpdate = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> {
+                    log.error("User with ID {} has not been found", userDto.getId());
+                    return new IdNotFoundException("There is no User with ID: " + userDto.getId());
+                });
+        userToUpdate.setName(userDto.getName());
+        userToUpdate.setEmail(userDto.getEmail());
 
+        log.debug("User has been updated: {}", userToUpdate);
 
-        userRepository.save(user);
-        log.debug("User has been updated: {}", user);
-
-        return UserMapper.mapToUserDto(user);
+        return UserMapper.mapToUserDto(userRepository.save(userToUpdate));
     }
 
     @Override
     @Transactional
     public UserDto updateByPatch(UserDto userDto, Integer userId) {
 
-        Optional<User> existedOptionalUser = userRepository.findById(userId);
-        if (existedOptionalUser.isEmpty()) {
-            log.error("User with ID {} has not been found", userId);
-            throw new IdNotFoundException("There is no User with ID: " + userId);
-        }
+        User userToUpdate = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User with ID {} has not been found", userId);
+                    return new IdNotFoundException("There is no User with ID: " + userId);
+                });
 
-        User user = User.builder()
-                .id(userId)
-                .name(userDto.getName() != null ? userDto.getName() : existedOptionalUser.get().getName())
-                .email(userDto.getEmail() != null ? userDto.getEmail() : existedOptionalUser.get().getEmail())
-                .build();
-        userRepository.save(user);
-        log.debug("User has been updated: {}", user);
+        if (userDto.getName() != null) userToUpdate.setName(userDto.getName());
+        if (userDto.getEmail() != null) userToUpdate.setEmail(userDto.getEmail());
 
-        return UserMapper.mapToUserDto(user);
+        log.debug("User has been updated: {}", userToUpdate);
+
+        return UserMapper.mapToUserDto(userRepository.save(userToUpdate));
     }
 
     @Override
