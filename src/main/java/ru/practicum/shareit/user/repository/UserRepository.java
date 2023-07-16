@@ -9,9 +9,11 @@ import ru.practicum.shareit.user.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM User u WHERE u.id = ?1")
+    void deleteByUserId(Integer id);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM User CASCADE")
     void deleteAllUser();
-
 }

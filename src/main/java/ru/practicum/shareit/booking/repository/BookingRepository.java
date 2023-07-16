@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
 
 
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
-
     Page<Booking> findByBookerIdOrderByStartDesc(Integer bookerId, Pageable page);
 
     Page<Booking> findByBookerIdAndStartLessThanAndEndGreaterThanOrderByEndDesc(
@@ -47,10 +45,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Integer countByStatusAndItemId(BookingStatus status, Integer itemId);
 
-    BookingDtoForItem findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
+    Booking findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
             Integer itemId, BookingStatus status, LocalDateTime currentTme);
 
-    BookingDtoForItem findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
+    Booking findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
             Integer itemId, BookingStatus status, LocalDateTime currentTme);
 
     Integer countByBookerIdAndItemIdAndStatusAndEndLessThan(
@@ -61,4 +59,8 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "SET b.booker=null " +
             "WHERE b.booker.id = ?1 ")
     void updateBookingsDeletingByUserId(Integer userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Booking CASCADE")
+    void deleteAllBooking();
 }

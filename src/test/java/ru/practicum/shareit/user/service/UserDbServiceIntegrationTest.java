@@ -1,10 +1,12 @@
 package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.model.Booking;
@@ -30,6 +32,7 @@ import static org.hamcrest.Matchers.*;
 @Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@ActiveProfiles(profiles = "test")
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:schema.sql")
 class UserDbServiceIntegrationTest {
 
@@ -50,9 +53,7 @@ class UserDbServiceIntegrationTest {
             em.persist(UserMapper.mapToUser(entity));
         }
         em.flush();
-
         List<UserDto> targetUsers = userService.findAll(0, 10);
-
         assertThat(targetUsers, hasSize(sourceUsers.size()));
         int id = 0;
         for (UserDto userDto : sourceUsers) {
@@ -66,50 +67,47 @@ class UserDbServiceIntegrationTest {
     }
 
     @Test
-    void deleteByIdWhenUserExistThenDeleteUserAndUserIdInLinkedTablesUserItemsSetUnavailable() {
-        UserDto sourceUser = InstanceFactory.newUserDto("user", "user@user.com");
-        em.persist(UserMapper.mapToUser(sourceUser));
-
-        TypedQuery<User> queryUser = em.createQuery("SELECT u FROM User u WHERE u.id = :id", User.class);
-        User user = queryUser.setParameter("id", 1)
-                .getSingleResult();
-
+    void deleteByIdWhen() {
+        User sourceUser = InstanceFactory.newUser(null, "user", "user@user.com");
+        em.persist(sourceUser);
         ItemRequest itemRequest = InstanceFactory.newItemRequest(null,
-                "request description", LocalDateTime.now().plusMinutes(1), user);
+                "request description", LocalDateTime.now().plusMinutes(1), sourceUser);
         em.persist(itemRequest);
-
         Item item = InstanceFactory.newItem(null, "item", "description",
-                true, user, null);
+                true, sourceUser, null);
         em.persist(item);
-
         Booking booking = InstanceFactory.newBooking(null , LocalDateTime.now().plusMinutes(1),
-                LocalDateTime.now().plusDays(1), item, user, BookingStatus.WAITING);
+                LocalDateTime.now().plusDays(1), item, sourceUser, BookingStatus.WAITING);
         em.persist(booking);
-
-        Comment comment = InstanceFactory.newComment(null, "comment text", item, user,
+        Comment comment = InstanceFactory.newComment(null, "comment text1", item, sourceUser,
                 LocalDateTime.now().plusMinutes(2));
         em.persist(comment);
         em.flush();
 
-        userService.deleteById(1);
+        userService.deleteById(sourceUser.getId());
 
-        assertThat(userService.findAll(0, 10), hasSize(0));
-
+        TypedQuery<User> queryUser = em.createQuery("SELECT u FROM User u", User.class);
+        List<User> allUsers = queryUser.getResultList();
+        TypedQuery<ItemRequest> queryRequest = em.createQuery("SELECT ir FROM ItemRequest ir", ItemRequest.class);
+        ItemRequest TargetRequest = queryRequest.getResultList().get(0);
+        TypedQuery<Item> queryItem = em.createQuery("SELECT i FROM Item i", Item.class);
+        Item targetItem= queryItem.getResultList().get(0);
+        TypedQuery<Booking> queryBooking=  em.createQuery("SELECT b FROM Booking b", Booking.class);
+        Booking targetBooking= queryBooking.getResultList().get(0);
         TypedQuery<Comment> queryComment = em.createQuery("SELECT c FROM Comment c", Comment.class);
         List<Comment> allComments = queryComment.getResultList();
+
+        assertThat(allUsers, is(empty()));
+        assertThat(TargetRequest.getRequestor(), is(nullValue()));
+        assertThat(targetItem.getAvailable(), equalTo(false));
+        assertThat(targetItem.getOwner(), is(nullValue()));
+        assertThat(targetBooking.getId(), equalTo(1));
+        assertThat(targetBooking.getBooker(), is(nullValue()));
         assertThat(allComments, is(empty()));
-
-        em.refresh(itemRequest);
-        assertThat(itemRequest.getId(), equalTo(1));
-        assertThat(itemRequest.getRequestor(), is(nullValue()));
-
-        em.refresh(item);
-        assertThat(item.getId(), equalTo(1));
-        assertThat(item.getAvailable(), equalTo(false));
-        assertThat(item.getOwner(), is(nullValue()));
-
-        em.refresh(booking);
-        assertThat(booking.getId(), equalTo(1));
-        assertThat(booking.getBooker(), is(nullValue()));
     }
+
+@AfterEach
+    void tearDown() {
+        em.clear();
+}
 }

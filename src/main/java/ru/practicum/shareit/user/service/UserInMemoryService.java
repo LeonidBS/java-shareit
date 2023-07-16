@@ -107,11 +107,8 @@ public class UserInMemoryService implements UserService {
 
     @Override
     public void deleteById(Integer id) {
-
         findById(id);
         userInMemoryRepository.deleteById(id);
         itemInMemoryRepository.setItemsAsIsNotAvailable(id);
-
     }
-
 }

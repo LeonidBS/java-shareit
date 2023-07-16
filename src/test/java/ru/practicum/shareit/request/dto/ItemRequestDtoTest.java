@@ -24,21 +24,27 @@ class ItemRequestDtoTest {
 
     @SneakyThrows
     @Test
-    void testUserDtoSerialization() {
-        User requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
-        ItemDto itemDto = InstanceFactory.newItemDto(1, "itemDto", "good itemDto", true,
+    void testItemDtoSerialization() {
+        User requestor = InstanceFactory.newUser(1,
+                "requestor", "requestor@user.com");
+        ItemDto itemDto = InstanceFactory.newItemDto(1,
+                "itemDto", "good itemDto", true,
                 2, "owner", null, 1);
-        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
+        DateTimeFormatter dateTimeFormat = DateTimeFormatter.ofPattern("" +
+                "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
         LocalDateTime created = LocalDateTime.now();
-        ItemRequestDto itemRequestDto = InstanceFactory.newItemRequestDto(1, "request",
-                created, 1,
+        ItemRequestDto itemRequestDto = InstanceFactory.newItemRequestDto(1,
+                "request", created, 1,
                 requestor.getName(), List.of(itemDto));
 
         JsonContent<ItemRequestDto> result = json.write(itemRequestDto);
 
-        assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
-        assertThat(result).extractingJsonPathStringValue("$.description").isEqualTo("request");
-        assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(
+        assertThat(result).extractingJsonPathNumberValue("$.id")
+                .isEqualTo(1);
+        assertThat(result).extractingJsonPathStringValue("$.description")
+                .isEqualTo("request");
+        assertThat(result).extractingJsonPathStringValue("$.created")
+                .isEqualTo(
                 dateTimeFormat.format(created));
     }
 

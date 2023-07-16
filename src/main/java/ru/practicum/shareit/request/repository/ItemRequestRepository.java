@@ -14,12 +14,6 @@ import java.util.List;
 @Repository
 public interface ItemRequestRepository extends JpaRepository<ItemRequest, Integer> {
 
-    @Query("SELECT ir " +
-            "FROM ItemRequest AS ir " +
-            "LEFT JOIN FETCH ir.requestor r " +
-             "WHERE ir.id = ?1")
-    ItemRequest findByIdFetch(Integer id);
-
     List<ItemRequest> findByRequestorIdOrderByCreatedDesc(Integer requestorId);
 
     Page<ItemRequest> findByRequestorIdNotOrderByCreatedDesc(Integer requestorId, Pageable page);

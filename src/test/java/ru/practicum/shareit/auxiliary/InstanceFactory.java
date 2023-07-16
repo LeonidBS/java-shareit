@@ -1,5 +1,6 @@
 package ru.practicum.shareit.auxiliary;
 
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -141,6 +142,19 @@ public class InstanceFactory {
                 .end(end)
                 .status(status)
                 .bookerId(bookerId)
+                .build();
+    }
+
+    public static BookingDto newBookingDto(Integer id, LocalDateTime start, LocalDateTime end,
+                                                  BookingStatus status, UserDto booker,
+                                           ItemDtoForBooking item) {
+        return BookingDto.builder()
+                .id(id)
+                .start(start)
+                .end(end)
+                .status(status)
+                .booker(booker)
+                .item(item)
                 .build();
     }
 

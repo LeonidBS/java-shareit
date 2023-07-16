@@ -37,7 +37,7 @@ public class ItemRequest {
     @NotNull(message = "Parameter name is NULL")
     private LocalDateTime created;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     @NotNull(message = "Parameter name is NULL")

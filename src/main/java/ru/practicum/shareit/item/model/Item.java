@@ -42,7 +42,7 @@ public class Item {
     @NotNull(message = "Parameter name is NULL")
     private Boolean available;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User owner;

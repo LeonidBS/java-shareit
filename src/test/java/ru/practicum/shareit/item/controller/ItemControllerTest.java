@@ -255,7 +255,6 @@ class ItemControllerTest {
                 .requestId(1)
                 .build();
 
-
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
                         .header("X-Sharer-User-Id", ownerId)

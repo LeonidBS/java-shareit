@@ -15,9 +15,7 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PositiveOrZero
@@ -43,5 +41,12 @@ public class User {
         return id != null && id.equals(((User) o).getId())
                 && name.equals(((User) o).getName())
                 && email.equals(((User) o).getEmail());
+    }
+
+    @Override
+    public String toString() {
+        return "{id=" + id
+                + ", name=" + name
+                + ", email=" + email + "}";
     }
 }

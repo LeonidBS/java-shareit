@@ -32,4 +32,13 @@ public class ItemDtoForBooking {
     private Integer ownerId;
 
     private Integer requestId;
+
+    @Override
+    public String toString() {
+        return "{id=" + id + ", name=" + name
+                + ", description=" + description
+                + ", available=" + available
+                + ", ownerId=" + ownerId
+                + ", requestId=" + requestId + "}";
+    }
 }

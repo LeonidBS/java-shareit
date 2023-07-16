@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class ItemRequestDtoInput {
-
     @NotNull(message = "Parameter name is NULL",
             groups = ValidationGroups.Create.class)
     @Size(min = 1, message = "Request description is empty",

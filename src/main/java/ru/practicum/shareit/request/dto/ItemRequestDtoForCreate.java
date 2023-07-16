@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ItemRequestDtoForCreate {
-
     private Integer id;
 
     private String description;

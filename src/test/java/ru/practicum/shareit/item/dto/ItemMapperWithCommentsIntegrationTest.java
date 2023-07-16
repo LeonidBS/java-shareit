@@ -20,6 +20,7 @@ import ru.practicum.shareit.user.model.User;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -56,14 +57,14 @@ class ItemMapperWithCommentsIntegrationTest {
         item = InstanceFactory.newItem(null, "item", "good item",
                 true, owner, itemRequest);
         em.persist(item);
-        LocalDateTime lastBookingStartDateTime = LocalDateTime.now().minusMonths(2)
-                .minusNanos(LocalDateTime.now().minusMonths(2).getNano());
-        LocalDateTime lastBookingEndDateTime = LocalDateTime.now().minusMonths(1)
-                .minusNanos(LocalDateTime.now().minusMonths(1).getNano());
-        LocalDateTime nextBookingStartDateTime = LocalDateTime.now().plusMonths(1)
-                .minusNanos(LocalDateTime.now().plusMonths(1).getNano());
-        LocalDateTime nextBookingEndDateTime = LocalDateTime.now().plusMonths(2)
-                .minusNanos(LocalDateTime.now().plusMonths(2).getNano());
+        LocalDateTime lastBookingStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        LocalDateTime lastBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(1)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        LocalDateTime nextBookingStartDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(1)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+        LocalDateTime nextBookingEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(2)
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
         Booking lastBooking = InstanceFactory.newBooking(null, lastBookingStartDateTime,
                 lastBookingEndDateTime, item, requestor, BookingStatus.APPROVED);
         Booking nextBooking = InstanceFactory.newBooking(null, nextBookingStartDateTime,

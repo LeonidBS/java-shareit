@@ -9,6 +9,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
+import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
@@ -32,6 +34,12 @@ class ItemRepositoryTest {
 
     @Autowired
     private ItemRepository itemRepository;
+
+    @Autowired
+    private BookingRepository bookingRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     private User requestor;
     private User owner;
@@ -87,11 +95,11 @@ class ItemRepositoryTest {
         userRepository.save(owner);
         itemRequestRepository.save(itemRequest);
         itemRepository.save(item1);
+        itemRepository.save(item2);
 
-        itemRepository.updateItemsAsIsNotAvailableByUserId(2);
-        Item updatedItem1 = itemRepository.findByIdFetch(1);
-        Item updatedItem2 = itemRepository.findByIdFetch(1);
-
+        itemRepository.updateItemsAsIsNotAvailableByUserId(owner.getId());
+        Item updatedItem1 = itemRepository.findByIdFetch(item1.getId());
+        Item updatedItem2 = itemRepository.findByIdFetch(item2.getId());
 
         assertFalse(updatedItem1.getAvailable());
         assertNull(updatedItem1.getOwner());
@@ -101,9 +109,10 @@ class ItemRepositoryTest {
 
     @AfterEach
     void cleanDatabase() {
+        commentRepository.deleteAllComment();
+        bookingRepository.deleteAllBooking();
         itemRepository.deleteAllItem();
         itemRequestRepository.deleteAllItemRequest();
         userRepository.deleteAllUser();
-
     }
 }

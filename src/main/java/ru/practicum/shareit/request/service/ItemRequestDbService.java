@@ -42,11 +42,9 @@ public class ItemRequestDbService implements ItemRequestService {
 
         return itemRequestRepository.
                 findByRequestorIdOrderByCreatedDesc(requestorId).stream()
-                .map(r -> {
-                    ItemRequestDto requestDto = ItemRequestMapper.INSTANCE.mapToDto(r);
-                    setListItemDto(requestDto);
-                    return requestDto;
-                })
+                .map(r ->
+                        setListItemDto(ItemRequestMapper.INSTANCE.mapToDto(r))
+                )
                 .collect(Collectors.toList());
     }
 
@@ -55,13 +53,11 @@ public class ItemRequestDbService implements ItemRequestService {
         PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         userService.findById(requestorId);
 
-        return itemRequestRepository.
-                findByRequestorIdNotOrderByCreatedDesc(requestorId, page).stream()
-                .map(r -> {
-                    ItemRequestDto requestDto = ItemRequestMapper.INSTANCE.mapToDto(r);
-                    setListItemDto(requestDto);
-                    return requestDto;
-                })
+        return itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(requestorId, page)
+                .stream()
+                .map(r ->
+                        setListItemDto(ItemRequestMapper.INSTANCE.mapToDto(r))
+                )
                 .collect(Collectors.toList());
     }
 
@@ -103,12 +99,10 @@ public class ItemRequestDbService implements ItemRequestService {
         itemRequestRepository.deleteById(id);
     }
 
-    private void setListItemDto(ItemRequestDto requestDto) {
-
+    private ItemRequestDto setListItemDto(ItemRequestDto requestDto) {
         requestDto.setItems(itemMapper.mapListToItemDto(itemRepository
                 .findByItemRequestId(requestDto.getId())));
-
-       // requestDto.setItems(itemService.findByItemRequestId(requestDto.getId()));
+        return requestDto;
     }
 
 }

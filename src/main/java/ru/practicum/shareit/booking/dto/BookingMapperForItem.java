@@ -1,17 +1,19 @@
 package ru.practicum.shareit.booking.dto;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.booking.model.Booking;
 
-public class BookingMapperForItem {
-    public static BookingDtoForItem mapToBookingDto(Booking booking) {
-        return new BookingDtoForItem(
-                booking.getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getStatus(),
-                booking.getBooker().getId()
-       );
-    }
+@Mapper
+public interface BookingMapperForItem {
+    BookingMapperForItem INSTANCE = Mappers.getMapper(BookingMapperForItem.class);
 
-
+    @Mapping(target = "bookerId", source = "booker.id")
+    BookingDtoForItem mapToDto(Booking entity);
 }
+
+
+
+
+

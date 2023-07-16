@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 @Builder
 @ToString
 public class Comment {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PositiveOrZero
@@ -36,7 +35,7 @@ public class Comment {
     @ToString.Exclude
     private Item item;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
     private User author;

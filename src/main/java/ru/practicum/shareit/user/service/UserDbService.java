@@ -105,8 +105,6 @@ public class UserDbService implements UserService {
     public void deleteById(Integer id) {
         PageRequest page = PageRequest.of(0, 1);
 
-        commentRepository.deleteByAuthorId(id);
-
         if (itemRepository.findByOwnerIdOrderById(id, page).toList().size() != 0) {
             itemRepository.updateItemsAsIsNotAvailableByUserId(id);
         }
@@ -119,6 +117,10 @@ public class UserDbService implements UserService {
             itemRequestRepository.updateRequestsByDeletingUserId(id);
         }
 
-        userRepository.deleteById(id);
+        if (commentRepository.findByAuthorId(id).size() != 0) {
+            commentRepository.deleteByAuthorId(id);
+        }
+
+        userRepository.deleteByUserId(id);
     }
 }

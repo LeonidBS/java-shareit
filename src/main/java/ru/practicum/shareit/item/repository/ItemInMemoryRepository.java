@@ -9,7 +9,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -59,20 +62,17 @@ public class ItemInMemoryRepository {
         return item;
     }
 
-    public List<Item> setItemsAsIsNotAvailable(Integer ownerId) {
-        List<Item> notActiveItems = new ArrayList<>();
+    public void setItemsAsIsNotAvailable(Integer ownerId) {
         for (Item item : items.values()) {
             if (item.getOwner().getId().equals(ownerId)) {
                 item.setAvailable(false);
-                notActiveItems.add(item);
             }
         }
-        return notActiveItems;
     }
 
     public List<Item> findByItemRequestId(Integer itemRequestId) {
         return items.values().stream()
-                .filter(i -> i.getItemRequest().getId() == itemRequestId)
+                .filter(i -> i.getItemRequest().getId().equals(itemRequestId))
                 .collect(Collectors.toList());
     }
 }

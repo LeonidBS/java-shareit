@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoForItem;
-import ru.practicum.shareit.booking.dto.BookingDtoInput;
-import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
@@ -139,7 +136,7 @@ public class BookingDbService implements BookingService {
                 });
 
         if (!item.getAvailable()) {
-            log.error("Item with ID {} is available", bookingDtoInput.getItemId());
+            log.error("Item with ID {} is not available", bookingDtoInput.getItemId());
             throw new MyValidationException("Item (ID " + bookingDtoInput.getItemId() + " is not available");
         }
 
@@ -161,10 +158,10 @@ public class BookingDbService implements BookingService {
                 .status(BookingStatus.WAITING)
                 .build();
 
-        bookingRepository.save(booking);
+
         log.debug("Booking has been created: {}", booking);
 
-        return BookingMapper.mapToBookingDto(booking);
+        return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -229,20 +226,19 @@ public class BookingDbService implements BookingService {
     @Override
     public BookingDtoForItem findLastBookingByItemId(Integer itemId) {
 
-        return bookingRepository
+        return BookingMapperForItem.INSTANCE.mapToDto(bookingRepository
                 .findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
                         itemId,
                         BookingStatus.APPROVED,
-                        LocalDateTime.now());
+                        LocalDateTime.now()));
     }
-
     @Override
     public BookingDtoForItem findNextBookingByItemId(Integer itemId) {
 
-        return bookingRepository
+        return BookingMapperForItem.INSTANCE.mapToDto(bookingRepository
                 .findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
                         itemId,
                         BookingStatus.APPROVED,
-                        LocalDateTime.now());
+                        LocalDateTime.now()));
     }
 }
