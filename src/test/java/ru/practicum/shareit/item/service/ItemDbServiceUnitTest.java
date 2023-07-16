@@ -22,6 +22,7 @@ import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
@@ -120,6 +121,16 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
+    void findByIdWithOwnerValidationWhenUserNotExistThenThrowException() {
+        int itemId = 1;
+
+        when(itemRepository.findByIdFetch(itemId)).thenReturn(null);
+
+        assertThrows(IdNotFoundException.class,
+                () -> itemDbService.findByIdWithOwnerValidation(itemId, 99));
+    }
+
+    @Test
     void findBySearchTextWhenTextIsNotEmptyThenReturnTwoPages() {
         Pageable pageable1 = PageRequest.of(0, 1);
         Pageable pageable2 = PageRequest.of(1, 1);
@@ -159,7 +170,7 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
-    void createUserExist() {
+    void createUserWhenInputCorrect() {
         int ownerId = 2;
 
         ItemDtoInput itemDtoInput = ItemDtoInput.builder()

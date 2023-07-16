@@ -5,8 +5,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,15 +19,12 @@ public class Booking {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @PositiveOrZero
     private Integer id;
 
     @Column(name = "start_date", nullable = false)
-    @NotNull(message = "Parameter startDate is NULL")
     private LocalDateTime start;
 
     @Column(name = "end_date", nullable = false)
-    @NotNull(message = "Parameter endDate is NULL")
     private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)

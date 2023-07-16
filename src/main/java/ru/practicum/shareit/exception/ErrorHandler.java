@@ -68,12 +68,6 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEntityUniqException(final EntityUniqException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
     public HibernateException handleHibernateException(final HibernateException e) {
         return new HibernateException(e.getMessage());
     }

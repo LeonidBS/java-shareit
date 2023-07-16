@@ -1,8 +1,7 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class BookingDtoForItem {
 
@@ -27,19 +27,6 @@ public class BookingDtoForItem {
     private BookingStatus status;
 
     private Integer bookerId;
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public BookingDtoForItem(@JsonProperty("id") Integer id,
-                             @JsonProperty("start") LocalDateTime start,
-                             @JsonProperty("end") LocalDateTime end,
-                             @JsonProperty("status") BookingStatus status,
-                             @JsonProperty("bookerId") Integer bookerId) {
-        this.id = id;
-        this.start = start;
-        this.end = end;
-        this.status = status;
-        this.bookerId = bookerId;
-    }
 
     @Override
     public String toString() {

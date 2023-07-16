@@ -5,10 +5,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -22,12 +18,9 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @PositiveOrZero
     private Integer id;
 
     @Column
-    @NotBlank(message = "Parameter name is empty")
-    @Size(min = 1, message = "Comments is empty")
     private String text;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,6 +34,5 @@ public class Comment {
     private User author;
 
     @Column(nullable = false)
-    @NotNull(message = "Parameter created is NULL")
     private LocalDateTime created;
 }

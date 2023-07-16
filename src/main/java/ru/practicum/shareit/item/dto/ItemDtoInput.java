@@ -8,7 +8,6 @@ import ru.practicum.shareit.validation.ValidationGroups;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
@@ -21,8 +20,6 @@ public class ItemDtoInput {
     private String name;
 
     @NotBlank(message = "Parameter name is empty",
-            groups = ValidationGroups.Create.class)
-    @Size(max = 200, message = "length of description is more then 200 symbols",
             groups = ValidationGroups.Create.class)
     private String description;
 

@@ -4,9 +4,6 @@ import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -25,21 +22,16 @@ public class ItemRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @PositiveOrZero
     private Integer id;
 
     @Column(nullable = false)
-    @NotNull(message = "Parameter name is NULL")
-    @Size(min = 1, message = "Request description is empty")
     private String description;
 
     @Column(name = "requested")
-    @NotNull(message = "Parameter name is NULL")
     private LocalDateTime created;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    @NotNull(message = "Parameter name is NULL")
     private User requestor;
 }

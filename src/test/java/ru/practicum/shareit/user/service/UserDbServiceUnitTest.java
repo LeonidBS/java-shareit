@@ -36,11 +36,14 @@ class UserDbServiceUnitTest {
 
     private static User existUser = new User();
     private static User updatedUser = new User();
+    private static User newUser = new User();
 
     @BeforeAll
     static void setUp() {
         existUser = InstanceFactory.newUser(1, "existUser", "existuser@user.com");
         updatedUser = InstanceFactory.newUser(1, "updatedUser", "updateduser@user.com");
+        newUser = InstanceFactory.newUser(1, "newUser", "newuser@user.com");
+
     }
 
     @Test
@@ -109,6 +112,18 @@ class UserDbServiceUnitTest {
 
         verify(userRepository, times(1))
                 .findById(userId);
+    }
+
+    @Test
+    void createWhenInputIsCorrect() {
+        UserDto user = UserMapper.mapToUserDto(newUser);
+
+        when(userRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+
+        UserDto targetDto = userDbService.create(user);
+
+        assertEquals("newUser", targetDto.getName());
+        assertEquals("newuser@user.com", targetDto.getEmail());
     }
 
     @Test
