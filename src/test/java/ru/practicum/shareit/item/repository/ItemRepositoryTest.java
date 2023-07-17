@@ -49,6 +49,18 @@ class ItemRepositoryTest {
     }
 
     @Test
+    void findByIdFetch() {
+        userRepository.save(requestor);
+        userRepository.save(owner);
+        itemRequestRepository.save(itemRequest);
+        itemRepository.save(item1);
+
+        Item targetItem = itemRepository.findByIdFetch(item1.getId());
+
+        assertEquals(item1, targetItem);
+    }
+
+    @Test
     void findBySearchTextWhenTextInAllItemsThenReturnAllItems() {
         List<Item> sourceItems = List.of(item1, item2);
         userRepository.save(requestor);
@@ -94,5 +106,19 @@ class ItemRepositoryTest {
         assertNull(updatedItem1.getOwner());
         assertFalse(updatedItem2.getAvailable());
         assertNull(updatedItem2.getOwner());
+    }
+
+    @Test
+    void findByItemRequestId() {
+        userRepository.save(requestor);
+        userRepository.save(owner);
+        itemRequestRepository.save(itemRequest);
+        itemRepository.save(item1);
+        itemRepository.save(item2);
+
+        List<Item> targetItems = itemRepository.findByItemRequestId(itemRequest.getId());
+
+        assertEquals(1, targetItems.size());
+        assertEquals(item1, targetItems.get(0));
     }
 }

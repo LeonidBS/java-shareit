@@ -60,6 +60,17 @@ class UserDtoTest {
         UserDto userDtoResult = json.parseObject(mapper.writeValueAsString(userDto));
 
         assertThat(userDtoResult).isEqualTo(userDto);
+    }
 
+    @Test
+    void testUserToStringWhenToStringResultCorrect() {
+        UserDto userDto = UserDto.builder()
+                .id(1)
+                .name("user")
+                .email("user@user.com")
+                .build();
+
+        assertThat("{id=1, name=user, email=user@user.com}")
+                .isEqualTo(userDto.toString());
     }
 }

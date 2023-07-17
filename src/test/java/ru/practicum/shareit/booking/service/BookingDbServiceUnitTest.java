@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InOrder;
@@ -24,6 +25,8 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
+import ru.practicum.shareit.exception.ApprovingException;
+import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.exception.MyValidationException;
 import ru.practicum.shareit.item.dto.ItemDtoForBooking;
 import ru.practicum.shareit.item.model.Item;
@@ -70,6 +73,7 @@ class BookingDbServiceUnitTest {
     private BookingDto presentBookingDto;
     private BookingDto rejectedBookingDto;
     private ItemDtoForBooking itemDtoForBookingWithRequest;
+    private ItemDtoForBooking itemDtoForBooking;
 
     @BeforeEach
     void setUp() {
@@ -86,7 +90,7 @@ class BookingDbServiceUnitTest {
         itemDtoForBookingWithRequest = InstanceFactory.newItemDtoForBooking(1,
                 "itemWithRequest", "good itemWithRequest",
                 true, 2, 1);
-        ItemDtoForBooking itemDtoForBooking = InstanceFactory.newItemDtoForBooking(1,
+        itemDtoForBooking = InstanceFactory.newItemDtoForBooking(1,
                 "item", "good item",
                 true, 2, null);
 
@@ -419,14 +423,35 @@ class BookingDbServiceUnitTest {
     }
 
     @Test
-    void findByIdWithValidationWhenUserIsNotOwnerOrBooking() {
+    void findByIdWithValidationWhenNoBookingByIdThenThrowException() {
+        int bookingId = 99;
+        int requestorId = 1;
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
+
+        Executable executable = () -> bookingDbService.findByIdWithValidation(bookingId, requestorId);
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class, executable);
+        assertEquals("There is no Booking with ID: " + bookingId,
+                idNotFoundException.getMessage());
+
+        verify(bookingRepository, times(1))
+                .findById(bookingId);
+    }
+
+    @Test
+    void findByIdWithValidationWhenUserIsNotOwnerOrBookingThenThrowException() {
         int bookingId = 1;
         int requestorId = 1;
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(pastBooking));
 
-        assertThrows(AccessDeniedException.class,
-                () -> bookingDbService.findByIdWithValidation(bookingId, requestorId));
+        Executable executable = () -> bookingDbService.findByIdWithValidation(bookingId, requestorId);
+
+        AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, executable);
+        assertEquals("Access denied for userId " + requestorId,
+                accessDeniedException.getMessage());
+
         verify(bookingRepository, times(1))
                 .findById(bookingId);
     }
@@ -465,6 +490,36 @@ class BookingDbServiceUnitTest {
     }
 
     @Test
+    void createWhenNoItemAvailableFalseThrowException() {
+
+        int requestorId = 1;
+
+        BookingDtoInput bookingDtoInput = BookingDtoInput.builder()
+                .start(futureBookingDto.getEnd())
+                .end(futureBookingDto.getStart())
+                .itemId(futureBookingDto.getItem().getId())
+                .build();
+        itemWithRequest.setAvailable(false);
+
+        when(userDbService.findById(requestorId))
+                .thenReturn(UserMapper.mapToUserDto(requestor));
+        when(itemRepository.findById(bookingDtoInput.getItemId()))
+                .thenReturn(Optional.of(itemWithRequest));
+
+        Executable executable = () -> bookingDbService.create(bookingDtoInput, requestorId);
+
+        MyValidationException myValidationException = assertThrows(MyValidationException.class, executable);
+        assertEquals("Item (ID " + bookingDtoInput.getItemId() + " is not available",
+                myValidationException.getMessage());
+
+        InOrder inOrder = inOrder(userDbService, itemRepository);
+        inOrder.verify(userDbService, times(1))
+                .findById(requestorId);
+        inOrder.verify(itemRepository, times(1))
+                .findById(bookingDtoInput.getItemId());
+    }
+
+    @Test
     void createWhenStartAfterEndThenThrowException() {
 
         int requestorId = 1;
@@ -482,8 +537,11 @@ class BookingDbServiceUnitTest {
         when(bookingRepository.save(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
-        assertThrows(MyValidationException.class,
-                () -> bookingDbService.create(bookingDtoInput, requestorId));
+        Executable executable = () -> bookingDbService.create(bookingDtoInput, requestorId);
+
+        MyValidationException myValidationException = assertThrows(MyValidationException.class, executable);
+        assertEquals("Start must be before End",
+                myValidationException.getMessage());
 
         InOrder inOrder = inOrder(userDbService, itemRepository);
         inOrder.verify(userDbService, times(1))
@@ -510,8 +568,11 @@ class BookingDbServiceUnitTest {
         when(bookingRepository.save(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
-        assertThrows(AccessDeniedException.class,
-                () -> bookingDbService.create(bookingDtoInput, ownerId));
+        Executable executable = () -> bookingDbService.create(bookingDtoInput, ownerId);
+
+        AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, executable);
+        assertEquals("Item (ID " + bookingDtoInput.getItemId() + " belongs to Booker",
+                accessDeniedException.getMessage());
 
         InOrder inOrder = inOrder(userDbService, itemRepository);
         inOrder.verify(userDbService, times(1))
@@ -556,10 +617,153 @@ class BookingDbServiceUnitTest {
         when(bookingRepository.save(any()))
                 .thenAnswer(i -> i.getArguments()[0]);
 
-        assertThrows(MyValidationException.class,
-                () -> bookingDbService.patchBooking(bookingId, approved, ownerId));
+        Executable executable = () -> bookingDbService.patchBooking(bookingId, approved, ownerId);
+
+        MyValidationException myValidationException = assertThrows(MyValidationException.class, executable);
+        assertEquals("Booking has been approved already",
+                myValidationException.getMessage());
 
         verify(bookingRepository, times(1))
                 .findById(bookingId);
+    }
+
+    @Test
+    void patchBookingWhenNoBookingThenThrowException() {
+        int bookingId = 99;
+        Boolean approved = false;
+        int ownerId = 2;
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.empty());
+
+        Executable executable = () -> bookingDbService.patchBooking(bookingId, approved, ownerId);
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class, executable);
+        assertEquals("There is no Booking with ID: " + bookingId,
+                idNotFoundException.getMessage());
+
+        verify(bookingRepository, times(1))
+                .findById(bookingId);
+    }
+
+    @Test
+    void patchBookingWhenUserIsNotOwnerThenThrowException() {
+        int bookingId = 3;
+        Boolean approved = false;
+        int ownerId = 1;
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.of(presentBooking));
+
+        Executable executable = () -> bookingDbService.patchBooking(bookingId, approved, ownerId);
+
+        AccessDeniedException accessDeniedException = assertThrows(AccessDeniedException.class, executable);
+        assertEquals("Access denied for ownerId " + ownerId,
+                accessDeniedException.getMessage());
+
+        verify(bookingRepository, times(1))
+                .findById(bookingId);
+    }
+
+    @Test
+    void patchBookingWhenStatusNotWaitingThenThrowException() {
+        int bookingId = 2;
+        Boolean approved = false;
+        int ownerId = 2;
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.of(rejectedBooking));
+
+        Executable executable = () -> bookingDbService.patchBooking(bookingId, approved, ownerId);
+
+        ApprovingException approvingException = assertThrows(ApprovingException.class, executable);
+        assertEquals("Booking has not been requested",
+                approvingException.getMessage());
+
+        verify(bookingRepository, times(1))
+                .findById(bookingId);
+    }
+
+    @Test
+    void updateBookingWhenInputIsCorrect() {
+        int bookingId = 3;
+
+        BookingDtoInput updatedBookingDto = BookingDtoInput.builder()
+                .id(presentBooking.getId())
+                .start(presentBooking.getStart())
+                .end(presentBooking.getEnd().plusDays(3))
+                .status(presentBooking.getStatus())
+                .itemId(presentBooking.getItem().getId())
+                .bookerId(presentBooking.getBooker().getId())
+                .build();
+        presentBooking.setEnd(updatedBookingDto.getEnd());
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.of(presentBooking));
+        when(itemRepository.findById(updatedBookingDto.getItemId()))
+                .thenReturn(Optional.of(presentBooking.getItem()));
+        when(bookingRepository.save(any()))
+                .thenAnswer(i -> i.getArguments()[0]);
+
+        BookingDto targetDto = bookingDbService.update(updatedBookingDto);
+
+        assertEquals(updatedBookingDto.getStart(), targetDto.getStart());
+        assertEquals(updatedBookingDto.getEnd(), targetDto.getEnd());
+        assertEquals(itemDtoForBooking, targetDto.getItem());
+        assertEquals(UserMapper.mapToUserDto(presentBooking.getBooker()),
+                targetDto.getBooker());
+        assertEquals(BookingStatus.APPROVED, targetDto.getStatus());
+        InOrder inOrder = inOrder(bookingRepository, itemRepository, bookingRepository);
+        inOrder.verify(bookingRepository, times(1))
+                .findById(bookingId);
+        inOrder.verify(itemRepository, times(1))
+                .findById(updatedBookingDto.getItemId());
+        inOrder.verify(bookingRepository, times(1))
+                .save(any());
+    }
+
+    @Test
+    void updateBookingWhenNoBookingThenThrowException() {
+        int bookingId = 99;
+        BookingDtoInput updatedBookingDto = BookingDtoInput.builder()
+                .id(bookingId)
+                .start(presentBooking.getStart())
+                .end(presentBooking.getEnd().plusDays(3))
+                .status(presentBooking.getStatus())
+                .itemId(presentBooking.getItem().getId())
+                .bookerId(presentBooking.getBooker().getId())
+                .build();
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.empty());
+
+        Executable executable = () -> bookingDbService.update(updatedBookingDto);
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class, executable);
+        assertEquals("There is no Booking with ID: " + updatedBookingDto.getId(),
+                idNotFoundException.getMessage());
+
+        verify(bookingRepository, times(1))
+                .findById(bookingId);
+    }
+
+    @Test
+    void findLastBookingByItemIdWhenLastBookingExistThenReturnBooking() {
+        int itemId = 1;
+
+        when(bookingRepository
+                .findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
+                       eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(pastBooking);
+    }
+
+    @Test
+    void findNextBookingByItemIdWhenLastBookingExistThenReturnBooking() {
+        int itemId = 1;
+
+        when(bookingRepository
+                .findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
+                        eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
+                .thenReturn(pastBooking);
     }
 }

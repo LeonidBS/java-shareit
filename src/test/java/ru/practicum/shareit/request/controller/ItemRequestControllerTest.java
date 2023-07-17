@@ -231,6 +231,18 @@ class ItemRequestControllerTest {
 
         verify(itemRequestService, never()).create(any(), anyInt());
     }
+
+    @SneakyThrows
+    @Test
+    void delete() {
+        doNothing().when(itemRequestService).delete(1);
+
+        mvc.perform(MockMvcRequestBuilders.delete("/requests/1"))
+                .andExpect(status().isOk());
+
+        verify(itemRequestService, times(1))
+                .delete(1);
+    }
 }
 
 

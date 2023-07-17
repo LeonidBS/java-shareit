@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class UserMapperTest {
     User user = User.builder()
@@ -27,8 +28,19 @@ class UserMapperTest {
     }
 
     @Test
+    void mapToUserDtoWhenUserNull() {
+
+        assertNull(UserMapper.mapToUserDto(null));
+    }
+
+    @Test
     void mapToUser() {
         assertEquals(UserMapper.mapToUser(dto).toString(), user.toString());
+    }
+
+    @Test
+    void mapToUserWhenUserDtoNull() {
+        assertNull(UserMapper.mapToUser(null));
     }
 
     @Test

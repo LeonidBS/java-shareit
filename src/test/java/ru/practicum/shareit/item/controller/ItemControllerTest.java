@@ -18,7 +18,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.comment.dto.CommentDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
 import ru.practicum.shareit.comment.dto.CommentMapper;
 import ru.practicum.shareit.comment.model.Comment;
@@ -62,7 +62,7 @@ class ItemControllerTest {
     private ItemDtoWithComments itemDtoWithComments;
     private Item item;
     private Comment comment;
-    private CommentDtoForItem commentDtoForItem;
+    private CommentDto commentDto;
     private BookingDtoForItem lastBookingDto;
     private BookingDtoForItem nextBookingDto;
 
@@ -86,8 +86,8 @@ class ItemControllerTest {
                 2, "owner", null, 1);
 
         comment = InstanceFactory.newComment(1, "comment", item, author, LocalDateTime.now());
-        commentDtoForItem = InstanceFactory.newCommentDtoForItem(1, "comment",
-                item.getId(), author.getId(), author.getName(), comment.getCreated());
+        commentDto = InstanceFactory.newCommentDto(1, "comment",
+                item.getId(), item.getName(), author.getId(), author.getName(), comment.getCreated());
 
         LocalDateTime lastBookingStartDateTime = LocalDateTime.parse(LocalDateTime.now().minusMonths(2)
                 .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
@@ -104,7 +104,7 @@ class ItemControllerTest {
                 nextBookingEndDateTime, BookingStatus.APPROVED, requestor.getId());
 
         itemDtoWithComments = InstanceFactory.newItemDtoWithComments(1, "item", "good item",
-                true, lastBookingDto, nextBookingDto, List.of(commentDtoForItem), 2, "owner",
+                true, lastBookingDto, nextBookingDto, List.of(commentDto), 2, "owner",
                 itemRequest.getCreated(), 0);
     }
 
@@ -114,7 +114,7 @@ class ItemControllerTest {
         int ownerId = 1;
 
         List<ItemDtoWithComments> itemsListDtoWithComments = List.of(itemDtoWithComments);
-        String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDtoForItem));
+        String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDto));
 
         when(itemService.findByOwnerId(ownerId, 0, 10))
                 .thenReturn(itemsListDtoWithComments);
@@ -144,7 +144,7 @@ class ItemControllerTest {
     void findByIdWhenUserIsOwner() {
         int userId = 1;
         int itemId = 1;
-        String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDtoForItem));
+        String stringCommentsDtoForItem = mapper.writeValueAsString(List.of(commentDto));
 
         when(itemService.findByIdWithOwnerValidation(itemId, userId))
                 .thenReturn(itemDtoWithComments);

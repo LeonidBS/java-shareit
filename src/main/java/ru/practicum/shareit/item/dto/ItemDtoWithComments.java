@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
-import ru.practicum.shareit.comment.dto.CommentDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +25,7 @@ public class ItemDtoWithComments {
 
     private BookingDtoForItem nextBooking;
 
-    private List<CommentDtoForItem> comments;
+    private List<CommentDto> comments;
 
     private Integer ownerId;
 

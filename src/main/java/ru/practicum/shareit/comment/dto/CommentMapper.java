@@ -5,6 +5,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.comment.model.Comment;
 
+import java.util.List;
+
 @Mapper
 public interface CommentMapper {
     CommentMapper INSTANCE = Mappers.getMapper(CommentMapper.class);
@@ -14,5 +16,7 @@ public interface CommentMapper {
     @Mapping(target = "authorId", source = "author.id")
     @Mapping(target = "authorName", source = "author.name")
     CommentDto mapToDto(Comment entity);
+
+    List<CommentDto> mapListToDto(List<Comment> entityList);
 }
 

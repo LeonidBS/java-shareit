@@ -30,6 +30,7 @@ import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -54,9 +55,10 @@ public class ItemDbService implements ItemService {
 
         userService.findById(ownerId);
 
-        return itemMapperWithComments.mapListToItemDto(itemRepository
-                        .findByOwnerIdOrderById(ownerId, page).toList(),
-                ownerId);
+        return itemRepository.findByOwnerIdOrderById(ownerId, page).stream()
+                .map(i -> itemMapperWithComments.mapToItemDto(i,
+                                i.getOwner(), i.getItemRequest(), ownerId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -150,7 +152,7 @@ public class ItemDbService implements ItemService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> {
                     log.error("Item with ID {} is not exist", itemId);
-                    return new IdNotFoundException("There is not Item with ID " + itemId);
+                    return new IdNotFoundException("There is no Item with ID: " + itemId);
                 });
 
         if (bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(

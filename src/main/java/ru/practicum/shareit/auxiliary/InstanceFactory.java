@@ -4,7 +4,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.comment.dto.CommentDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoForBooking;
@@ -67,7 +67,7 @@ public class InstanceFactory {
     public static ItemDtoWithComments newItemDtoWithComments(Integer id, String name, String description,
                                                              Boolean available, BookingDtoForItem lastBooking,
                                                              BookingDtoForItem nextBooking,
-                                                             List<CommentDtoForItem> comments, Integer ownerId,
+                                                             List<CommentDto> comments, Integer ownerId,
                                                              String ownerName, LocalDateTime requestDate,
                                                              Integer bookingQuantity) {
         return ItemDtoWithComments.builder()
@@ -169,13 +169,14 @@ public class InstanceFactory {
                 .build();
     }
 
-    public static CommentDtoForItem newCommentDtoForItem(Integer id, String text,
-                                                         Integer itemId, Integer authorId, String authorName,
-                                                         LocalDateTime created) {
-        return CommentDtoForItem.builder()
+    public static CommentDto newCommentDto(Integer id, String text,
+                                           Integer itemId, String itemName, Integer authorId,
+                                           String authorName, LocalDateTime created) {
+        return CommentDto.builder()
                 .id(id)
                 .text(text)
                 .itemId(itemId)
+                .itemName(itemName)
                 .authorId(authorId)
                 .authorName(authorName)
                 .created(created)

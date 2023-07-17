@@ -207,8 +207,12 @@ public class BookingDbService implements BookingService {
         Booking booking = bookingRepository.findById(bookingDtoInput.getId())
                 .orElseThrow(() -> {
                     log.error("Booking with ID {} has not been found", bookingDtoInput);
-                    return new IdNotFoundException("There is no Booking with ID: " + bookingDtoInput);
+                    return new IdNotFoundException("There is no Booking with ID: " + bookingDtoInput.getId());
                 });
+
+        booking.setStart(bookingDtoInput.getStart());
+        booking.setEnd(bookingDtoInput.getEnd());
+        booking.setItem(itemRepository.findById(bookingDtoInput.getItemId()).get());
 
         return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
     }

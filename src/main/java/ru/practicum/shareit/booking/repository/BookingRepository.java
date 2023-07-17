@@ -54,7 +54,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Integer countByBookerIdAndItemIdAndStatusAndEndLessThan(
             Integer userId, Integer itemId, BookingStatus status, LocalDateTime currentTime);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Booking b " +
             "SET b.booker=null " +
             "WHERE b.booker.id = ?1 ")

@@ -12,7 +12,7 @@ import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.comment.dto.CommentDtoForItem;
+import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -43,7 +43,7 @@ class ItemMapperWithCommentsIntegrationTest {
     private BookingDtoForItem nextBookingDto;
     private ItemRequest itemRequest;
     private Item item;
-    private CommentDtoForItem commentDtoForItem;
+    private CommentDto commentDto;
 
     @BeforeEach
     void setup() {
@@ -82,8 +82,8 @@ class ItemMapperWithCommentsIntegrationTest {
 
         Comment comment = InstanceFactory.newComment(null, "comment", item,
                 author, LocalDateTime.now());
-        commentDtoForItem = InstanceFactory.newCommentDtoForItem(1, "comment",
-                item.getId(), author.getId(), author.getName(), comment.getCreated());
+        commentDto = InstanceFactory.newCommentDto(1, "comment",
+                item.getId(), item.getName(), author.getId(), author.getName(), comment.getCreated());
         em.persist(comment);
         em.flush();
     }
@@ -94,7 +94,7 @@ class ItemMapperWithCommentsIntegrationTest {
 
         ItemDtoWithComments itemDtoWithComments = InstanceFactory.newItemDtoWithComments(
                 1, "item", "good item", true, lastBookingDto,
-                nextBookingDto, List.of(commentDtoForItem), owner.getId(), owner.getName(),
+                nextBookingDto, List.of(commentDto), owner.getId(), owner.getName(),
                 itemRequest.getCreated(), 2);
 
         ItemDtoWithComments targetDto = itemMapperWithComments.mapToItemDto(item, owner,
@@ -109,11 +109,57 @@ class ItemMapperWithCommentsIntegrationTest {
 
         ItemDtoWithComments itemDtoWithComments = InstanceFactory.newItemDtoWithComments(
                 1, "item", "good item", true, null,
-                null, List.of(commentDtoForItem), owner.getId(), owner.getName(),
+                null, List.of(commentDto), owner.getId(), owner.getName(),
                 itemRequest.getCreated(), 2);
 
         ItemDtoWithComments targetDto = itemMapperWithComments.mapToItemDto(item, owner,
                 itemRequest, userId);
+
+        assertThat(targetDto, equalTo(itemDtoWithComments));
+    }
+
+    @Test
+    void mapToItemDtoWhenOwnerIsNullRequestNotNull() {
+        int userId = 2;
+        item.setOwner(null);
+        ItemDtoWithComments itemDtoWithComments = InstanceFactory.newItemDtoWithComments(
+                1, "item", "good item", true, null,
+                null, List.of(commentDto), null, null,
+                itemRequest.getCreated(), 2);
+
+        ItemDtoWithComments targetDto = itemMapperWithComments.mapToItemDto(item, owner,
+                itemRequest, userId);
+
+        assertThat(targetDto, equalTo(itemDtoWithComments));
+    }
+
+    @Test
+    void mapToItemDtoWhenUserIsOwnerRequestIsNull() {
+        int userId = 2;
+        item.setOwner(null);
+        item.setItemRequest(null);
+        ItemDtoWithComments itemDtoWithComments = InstanceFactory.newItemDtoWithComments(
+                1, "item", "good item", true, null,
+                null, List.of(commentDto), null, null,
+                null, 2);
+
+        ItemDtoWithComments targetDto = itemMapperWithComments.mapToItemDto(item, owner,
+                null, userId);
+
+        assertThat(targetDto, equalTo(itemDtoWithComments));
+    }
+
+    @Test
+    void mapToItemDtoWhenOwnerIsNullRequestIsNull() {
+        int userId = 2;
+        item.setItemRequest(null);
+        ItemDtoWithComments itemDtoWithComments = InstanceFactory.newItemDtoWithComments(
+                1, "item", "good item", true, lastBookingDto,
+                nextBookingDto, List.of(commentDto), owner.getId(), owner.getName(),
+                null, 2);
+
+        ItemDtoWithComments targetDto = itemMapperWithComments.mapToItemDto(item, owner,
+                null, userId);
 
         assertThat(targetDto, equalTo(itemDtoWithComments));
     }

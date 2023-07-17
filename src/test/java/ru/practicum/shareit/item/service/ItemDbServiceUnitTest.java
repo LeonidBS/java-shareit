@@ -99,6 +99,32 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
+    void findByOwnerIdWhenOwnerExistThenReturnItem() {
+        int ownerId = 1;
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Item> itemList = List.of(item);
+        Page<Item> itemPage = new PageImpl<>(itemList, pageable, 0);
+
+
+        when(itemRepository.findByOwnerIdOrderById(ownerId, pageable))
+                .thenReturn(itemPage);
+        when(itemMapperWithComments.mapToItemDto(item,
+                item.getOwner(), item.getItemRequest(), requestor.getId()))
+                .thenReturn(itemDtoWithComments);
+
+        List<ItemDtoWithComments> targetListDto = itemDbService.findByOwnerId(ownerId, 0, 10);
+
+        assertEquals(itemDtoWithComments, targetListDto.get(0));
+        InOrder inOrder = inOrder(userDbService, itemRepository, itemMapperWithComments);
+        inOrder.verify(userDbService, times(1))
+                .findById(requestor.getId());
+        inOrder.verify(itemRepository, times(1))
+                .findByOwnerIdOrderById(ownerId, pageable);
+        inOrder.verify(itemMapperWithComments, times(1))
+                .mapToItemDto(item, item.getOwner(), item.getItemRequest(), requestor.getId());
+    }
+
+    @Test
     void findByIdWithOwnerValidationWhenItemExistThenReturnItem() {
         int itemId = 1;
 
@@ -166,7 +192,6 @@ class ItemDbServiceUnitTest {
                 .findBySearchText(text, pageable2);
         inOrder.verify(itemMapper, times(1))
                 .mapListToItemDto(list2);
-
     }
 
     @Test
@@ -198,6 +223,33 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
+    void createUserWhenRequestNotExistThenThrowException() {
+        int ownerId = 2;
+
+        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
+                .name("item")
+                .description("good item")
+                .available(true)
+                .requestId(itemRequest.getId())
+                .build();
+
+        when(userDbService.findById(ownerId)).thenReturn(UserMapper.mapToUserDto(owner));
+        when(itemRequestRepository.findById(itemRequest.getId())).thenReturn(Optional.empty());
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class,
+                () -> itemDbService.create(itemDtoInput, ownerId));
+        assertEquals("ItemRequest not found",
+                idNotFoundException.getMessage());
+
+        InOrder inOrder = inOrder(userDbService, itemRequestRepository, itemRepository);
+        inOrder.verify(userDbService, times(1))
+                .findById(ownerId);
+        inOrder.verify(itemRequestRepository, times(1))
+                .findById(itemRequest.getId());
+
+    }
+
+    @Test
     void updateWhenUserIsOwner() {
         int itemId = 1;
         int ownerId = 2;
@@ -226,7 +278,7 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
-    void updateWhenUserIsNotOwner() {
+    void updateWhenUserIsNotOwnerThrowException() {
         int itemId = 1;
         int ownerId = 5;
 
@@ -245,6 +297,25 @@ class ItemDbServiceUnitTest {
     }
 
     @Test
+    void updateWhenUserNotExistIsThrowException() {
+        int itemId = 99;
+        int ownerId = 2;
+
+        ItemDtoInput updatedItemDtoInput = ItemDtoInput.builder()
+                .description("updated good item")
+                .build();
+
+        when(userDbService.findById(ownerId)).thenReturn(UserMapper.mapToUserDto(owner));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        Executable executable = () -> itemDbService.update(updatedItemDtoInput, ownerId, itemId);
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class, executable);
+        assertEquals("There is no Item with ID: " + itemId,
+                idNotFoundException.getMessage());
+    }
+
+    @Test
     void createCommentWhenBookingExist() {
         int userId = 3;
         int itemId = 1;
@@ -256,7 +327,7 @@ class ItemDbServiceUnitTest {
         when(userDbService.findById(userId)).thenReturn(UserMapper.mapToUserDto(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(
-                anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class)))
+                anyInt(), anyInt(), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
                 .thenReturn(1);
         when(commentRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
@@ -273,13 +344,38 @@ class ItemDbServiceUnitTest {
                 .findById(itemId);
         inOrder.verify(bookingRepository, times(1))
                 .countByBookerIdAndItemIdAndStatusAndEndLessThan(
-                        anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class));
+                        eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class));
         inOrder.verify(commentRepository, times(1))
                 .save(any());
     }
 
     @Test
-    void createCommentWhenBookingNotExist() {
+    void createCommentWhenItemNotExistThenThrowException() {
+        int userId = 3;
+        int itemId = 1;
+
+        CommentDtoInput commentDtoInput = CommentDtoInput.builder()
+                .text("commnet")
+                .build();
+
+        when(userDbService.findById(userId)).thenReturn(UserMapper.mapToUserDto(author));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        Executable executable = () -> itemDbService.createComment(commentDtoInput, itemId, userId);
+
+        IdNotFoundException idNotFoundException = assertThrows(IdNotFoundException.class, executable);
+        assertEquals("There is no Item with ID: " + itemId,
+                idNotFoundException.getMessage());
+        InOrder inOrder = inOrder(userDbService, itemRepository,
+                bookingRepository);
+        inOrder.verify(userDbService, times(1))
+                .findById(userId);
+        inOrder.verify(itemRepository, times(1))
+                .findById(itemId);
+    }
+
+    @Test
+    void createCommentWhenUserHveNoBookingsCannotCommentThenThrowException() {
         int userId = 3;
         int itemId = 1;
 
@@ -290,7 +386,7 @@ class ItemDbServiceUnitTest {
         when(userDbService.findById(userId)).thenReturn(UserMapper.mapToUserDto(author));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(
-                anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class)))
+                eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
                 .thenReturn(0);
 
         Executable executable = () -> itemDbService.createComment(commentDtoInput, itemId, userId);
@@ -307,6 +403,6 @@ class ItemDbServiceUnitTest {
                 .findById(itemId);
         inOrder.verify(bookingRepository, times(1))
                 .countByBookerIdAndItemIdAndStatusAndEndLessThan(
-                        anyInt(), anyInt(), any(BookingStatus.class), any(LocalDateTime.class));
+                        eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class));
     }
 }
