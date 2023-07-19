@@ -7,8 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.IdNotFoundException;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
@@ -18,7 +16,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +29,7 @@ public class ItemRequestDbService implements ItemRequestService {
     private final ItemRequestRepository itemRequestRepository;
     @Qualifier("dbService")
     private final UserService userService;
-    private final ItemRepository itemRepository;
-    private final ItemMapper itemMapper;
+    private final ItemRequestMapper itemRequestMapper;
 
     @Override
     public List<ItemRequestDto> findOwn(Integer requestorId) {
@@ -41,9 +37,7 @@ public class ItemRequestDbService implements ItemRequestService {
 
         return itemRequestRepository
                 .findByRequestorIdOrderByCreatedDesc(requestorId).stream()
-                .map(r ->
-                        setListItemDto(ItemRequestMapper.INSTANCE.mapToDto(r))
-                )
+                .map(itemRequestMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
@@ -54,22 +48,17 @@ public class ItemRequestDbService implements ItemRequestService {
 
         return itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(requestorId, page)
                 .stream()
-                .map(r ->
-                        setListItemDto(ItemRequestMapper.INSTANCE.mapToDto(r))
-                )
+                .map(itemRequestMapper::mapToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ItemRequestDto getById(Integer requestId, Integer userId) {
         userService.findById(userId);
-
-        ItemRequestDto requestDto = ItemRequestMapper.INSTANCE
+        return itemRequestMapper
                 .mapToDto(itemRequestRepository.findById(requestId)
-                        .orElseThrow(() -> new IdNotFoundException("ItemRequest not found")));
-        setListItemDto(requestDto);
-
-        return requestDto;
+                        .orElseThrow(() ->
+                                new IdNotFoundException("ItemRequest not found")));
     }
 
     @Transactional
@@ -81,7 +70,7 @@ public class ItemRequestDbService implements ItemRequestService {
             dtoInput.setRequestDate(LocalDateTime.now());
         }
 
-        @Valid ItemRequest itemRequest = ItemRequest.builder()
+        ItemRequest itemRequest = ItemRequest.builder()
                 .description(dtoInput.getDescription())
                 .created(dtoInput.getRequestDate())
                 .requestor(UserMapper.mapToUser(userDto))
@@ -89,7 +78,7 @@ public class ItemRequestDbService implements ItemRequestService {
 
         log.debug("ItemRequest has been created: {}", itemRequest);
 
-        return ItemRequestMapper.INSTANCE.mapToDto(itemRequestRepository.save(itemRequest));
+        return itemRequestMapper.mapToDto(itemRequestRepository.save(itemRequest));
     }
 
     @Override
@@ -97,11 +86,4 @@ public class ItemRequestDbService implements ItemRequestService {
 
         itemRequestRepository.deleteById(id);
     }
-
-    private ItemRequestDto setListItemDto(ItemRequestDto requestDto) {
-        requestDto.setItems(itemMapper.mapListToItemDto(itemRepository
-                .findByItemRequestId(requestDto.getId())));
-        return requestDto;
-    }
-
 }

@@ -20,6 +20,7 @@ import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.dto.CommentDtoInput;
+import ru.practicum.shareit.comment.dto.CommentMapper;
 import ru.practicum.shareit.comment.repository.CommentRepository;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.IdNotFoundException;
@@ -61,6 +62,9 @@ class ItemDbServiceUnitTest {
     private CommentRepository commentRepository;
 
     @Mock
+    private CommentMapper commentMapper;
+
+    @Mock
     private BookingRepository bookingRepository;
 
     @Mock
@@ -79,6 +83,8 @@ class ItemDbServiceUnitTest {
     private Item item;
     private Item secondItem;
 
+    private CommentDto commentDto;
+
     @BeforeEach
     void setup() {
         requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
@@ -96,6 +102,8 @@ class ItemDbServiceUnitTest {
         itemDtoWithComments = InstanceFactory.newItemDtoWithComments(1, "item", "good item",
                 true, null, null, null, 2, "owner",
                 itemRequest.getCreated(), 0);
+        commentDto = InstanceFactory.newCommentDto(null, "comment", 1, "item",
+                3, "author", LocalDateTime.now());
     }
 
     @Test
@@ -321,7 +329,8 @@ class ItemDbServiceUnitTest {
         int itemId = 1;
 
         CommentDtoInput commentDtoInput = CommentDtoInput.builder()
-                .text("commnet")
+                .text("comment")
+                .created(commentDto.getCreated())
                 .build();
 
         when(userDbService.findById(userId)).thenReturn(UserMapper.mapToUserDto(author));
@@ -329,15 +338,15 @@ class ItemDbServiceUnitTest {
         when(bookingRepository.countByBookerIdAndItemIdAndStatusAndEndLessThan(
                 anyInt(), anyInt(), eq(BookingStatus.APPROVED), any(LocalDateTime.class)))
                 .thenReturn(1);
-        when(commentRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(commentMapper.mapToDto(any())).thenReturn(commentDto);
 
         CommentDto targetDto = itemDbService.createComment(commentDtoInput, itemId, userId);
 
-        assertEquals("commnet", targetDto.getText());
+        assertEquals("comment", targetDto.getText());
         assertEquals(item.getId(), targetDto.getItemId());
         assertEquals(userId, targetDto.getAuthorId());
         InOrder inOrder = inOrder(userDbService, itemRepository,
-                bookingRepository, commentRepository);
+                bookingRepository, commentRepository, commentMapper);
         inOrder.verify(userDbService, times(1))
                 .findById(userId);
         inOrder.verify(itemRepository, times(1))
@@ -347,6 +356,8 @@ class ItemDbServiceUnitTest {
                         eq(userId), eq(itemId), eq(BookingStatus.APPROVED), any(LocalDateTime.class));
         inOrder.verify(commentRepository, times(1))
                 .save(any());
+        inOrder.verify(commentMapper, times(1))
+                .mapToDto(any());
     }
 
     @Test

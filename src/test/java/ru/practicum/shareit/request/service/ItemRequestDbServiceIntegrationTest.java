@@ -34,6 +34,7 @@ class ItemRequestDbServiceIntegrationTest {
     private final EntityManager em;
     private final ItemRequestService itemRequestService;
     private final ItemMapper itemMapper;
+    private final ItemRequestMapper itemRequestMapper;
 
     @Test
     void findAllExceptOwn() {
@@ -45,11 +46,12 @@ class ItemRequestDbServiceIntegrationTest {
         em.persist(user);
         ItemRequest sourceRequest = InstanceFactory.newItemRequest(null, "ItemRequest description",
                 LocalDateTime.now(), requestor);
-        em.persist(sourceRequest);
-        List<ItemRequestDto> sourceRequestsDto = List.of(ItemRequestMapper.INSTANCE.mapToDto(sourceRequest));
+        List<ItemRequestDto> sourceRequestsDto = List.of(itemRequestMapper.mapToDto(sourceRequest));
         List<Item> items = List.of(InstanceFactory.newItem(null, "item", "good item",
                 true, owner, sourceRequest));
         em.persist(items.get(0));
+        sourceRequest.setItems(items);
+        em.persist(sourceRequest);
         sourceRequestsDto.get(0).setItems(itemMapper.mapListToItemDto(items));
         em.flush();
 

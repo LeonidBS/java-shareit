@@ -1,2 +1,4 @@
 # java-shareit
-Template repository for Shareit project.
+Shareit project.
+Developed by Leonid Kim
+2023

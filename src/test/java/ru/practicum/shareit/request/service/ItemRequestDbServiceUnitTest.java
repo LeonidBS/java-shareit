@@ -1,6 +1,6 @@
 package ru.practicum.shareit.request.service;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
@@ -16,9 +16,6 @@ import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.exception.IdNotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
@@ -33,7 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,60 +41,49 @@ class ItemRequestDbServiceUnitTest {
     private ItemRequestRepository itemRequestRepository;
 
     @Mock
-    private ItemRepository itemRepository;
-
-    @Mock
-    private ItemMapper itemMapper;
+    private ItemRequestMapper itemRequestMapper;
 
     @Mock
     private UserDbService userDbService;
 
     @InjectMocks
     private ItemRequestDbService itemRequestDbService;
-    private static User requestor;
-    private static ItemRequest itemRequest;
-    private static ItemDto itemDto;
-    private static Item item;
+    private User requestor;
+    private ItemRequest itemRequest;
+    private ItemRequestDto itemRequestDto;
 
-    @BeforeAll
-    static void setUp() {
-        User owner = InstanceFactory.newUser(2, "owner", "owner@user.com");
+    @BeforeEach
+    void setUp() {
+        LocalDateTime created = LocalDateTime.now();
         requestor = InstanceFactory.newUser(1, "requestor", "requestor@user.com");
-        itemRequest = InstanceFactory.newItemRequest(1, "request", LocalDateTime.now(), requestor);
-        itemDto = InstanceFactory.newItemDto(1, "itemDto", "good itemDto", true,
+        itemRequest = InstanceFactory.newItemRequest(1, "request", created, requestor);
+        ItemDto itemDto = InstanceFactory.newItemDto(1, "itemDto", "good itemDto", true,
                 2, "owner", null, 1);
-        item = InstanceFactory.newItem(1, "itemDto", "good itemDto", true,
-                owner, itemRequest);
+        itemRequestDto = InstanceFactory.newItemRequestDto(1, "request", created, requestor.getId(),
+                requestor.getName(), List.of(itemDto));
     }
 
     @Test
     void findOwnWhenRequestorExistThenReturnRequests() {
         int requestorId = 1;
         List<ItemRequest> requests = List.of(itemRequest);
-        ItemRequestDto sourceRequest = ItemRequestMapper.INSTANCE.mapToDto(itemRequest);
-        sourceRequest.setItems(List.of(itemDto));
-        List<ItemRequestDto> sourceDtoList = List.of(sourceRequest);
+        List<ItemRequestDto> sourceDtoList = List.of(itemRequestDto);
 
         when(itemRequestRepository.findByRequestorIdOrderByCreatedDesc(requestorId))
                 .thenReturn(requests);
-        when(itemRepository.findByItemRequestId(1))
-                .thenReturn(List.of(item));
-        when(itemMapper.mapListToItemDto(List.of(item))).thenReturn(List.of(itemDto));
+        when(itemRequestMapper.mapToDto(itemRequest)).thenReturn(itemRequestDto);
 
         List<ItemRequestDto> targetListDto = itemRequestDbService.findOwn(requestorId);
 
         assertEquals(sourceDtoList, targetListDto);
         InOrder inOrder = inOrder(userDbService, itemRequestRepository,
-                itemRepository, itemMapper);
+                itemRequestMapper);
         inOrder.verify(userDbService, times(1))
                 .findById(requestorId);
         inOrder.verify(itemRequestRepository, times(1))
                 .findByRequestorIdOrderByCreatedDesc(requestorId);
-        inOrder.verify(itemRepository, times(1))
-                .findByItemRequestId(1);
-        inOrder.verify(itemMapper, times(1))
-                .mapListToItemDto(List.of(item));
-
+        inOrder.verify(itemRequestMapper, times(1))
+                .mapToDto(itemRequest);
     }
 
     @Test
@@ -158,25 +145,28 @@ class ItemRequestDbServiceUnitTest {
         }
 
         Page<ItemRequest> pageItemRequest2 = new PageImpl<>(listItemRequest2, pageable2, 0);
-        ItemRequestDto targetDto = ItemRequestMapper.INSTANCE.mapToDto(itemRequest);
-        targetDto.setItems(List.of(itemDto));
 
         when(userDbService.findById(requestorId)).thenReturn(UserMapper.mapToUserDto(requestor));
         when(itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(requestorId, pageRequest1))
                 .thenReturn(pageItemRequest1);
         when(itemRequestRepository.findByRequestorIdNotOrderByCreatedDesc(requestorId, pageRequest2))
                 .thenReturn(pageItemRequest2);
-        when(itemRepository.findByItemRequestId(any(Integer.class)))
-                .thenReturn(new ArrayList<>());
-        when(itemMapper.mapListToItemDto(new ArrayList<>())).thenReturn(new ArrayList<>());
+        when(itemRequestMapper.mapToDto(listItemRequest1.get(0))).thenReturn(list1.get(0));
+        when(itemRequestMapper.mapToDto(listItemRequest1.get(1))).thenReturn(list1.get(1));
+        when(itemRequestMapper.mapToDto(listItemRequest1.get(2))).thenReturn(list1.get(2));
+        when(itemRequestMapper.mapToDto(listItemRequest1.get(3))).thenReturn(list1.get(3));
+        when(itemRequestMapper.mapToDto(listItemRequest1.get(4))).thenReturn(list1.get(4));
+        when(itemRequestMapper.mapToDto(listItemRequest2.get(0))).thenReturn(list2.get(0));
+        when(itemRequestMapper.mapToDto(listItemRequest2.get(1))).thenReturn(list2.get(1));
+        when(itemRequestMapper.mapToDto(listItemRequest2.get(2))).thenReturn(list2.get(2));
 
-        List<ItemRequestDto> retrievedListPage1
+        List<ItemRequestDto> targetListPage1
                 = itemRequestDbService.findAllExceptOwn(requestorId, 0, 5);
-        List<ItemRequestDto> retrievedListPage2
+        List<ItemRequestDto> targetListPage2
                 = itemRequestDbService.findAllExceptOwn(requestorId, 5, 5);
 
-        assertEquals(page1.toList(), retrievedListPage1);
-        assertEquals(page2.toList(), retrievedListPage2);
+        assertEquals(page1.toList(), targetListPage1);
+        assertEquals(page2.toList(), targetListPage2);
 
         verify(userDbService, times(2))
                 .findById(requestorId);
@@ -184,10 +174,8 @@ class ItemRequestDbServiceUnitTest {
                 .findByRequestorIdNotOrderByCreatedDesc(requestorId, pageRequest1);
         verify(itemRequestRepository, times(1))
                 .findByRequestorIdNotOrderByCreatedDesc(requestorId, pageRequest1);
-        verify(itemRepository, times(8))
-                .findByItemRequestId(any(Integer.class));
-        verify(itemMapper, times(8))
-                .mapListToItemDto(new ArrayList<>());
+        verify(itemRequestMapper, times(8))
+                .mapToDto(any());
     }
 
     @Test
@@ -205,19 +193,29 @@ class ItemRequestDbServiceUnitTest {
     void createWhenDateCreatedNull() {
         int requestorId = 1;
 
+        itemRequestDto.setItems(null);
         ItemRequestDtoInput newItemRequestInput = ItemRequestDtoInput.builder()
-                .description("new request")
+                .description(itemRequest.getDescription())
+                .requestDate(itemRequest.getCreated())
                 .build();
 
-        when(userDbService.findById(requestorId)).thenReturn(UserMapper.mapToUserDto(requestor));
-        when(itemRequestRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
+        when(userDbService.findById(requestorId))
+                .thenReturn(UserMapper.mapToUserDto(requestor));
+        when(itemRequestRepository.save(any(ItemRequest.class)))
+                .thenAnswer(i -> i.getArguments()[0]);
+        when(itemRequestMapper.mapToDto(any(ItemRequest.class)))
+                .thenReturn(itemRequestDto);
 
         ItemRequestDto targetDto = itemRequestDbService.create(newItemRequestInput, requestorId);
 
-        assertEquals("new request", targetDto.getDescription());
-        assertNotNull(targetDto.getCreated());
-        assertEquals(1, targetDto.getRequestorId());
-        assertEquals("requestor", targetDto.getRequestorName());
-        assertNull(targetDto.getItems());
+        assertEquals(itemRequestDto, targetDto);
+        InOrder inOrder = inOrder(userDbService, itemRequestRepository,
+                itemRequestMapper);
+        inOrder.verify(userDbService, times(1))
+                .findById(requestorId);
+        inOrder.verify(itemRequestRepository, times(1))
+                .save(any(ItemRequest.class));
+        inOrder.verify(itemRequestMapper, times(1))
+                .mapToDto(any(ItemRequest.class));
     }
 }

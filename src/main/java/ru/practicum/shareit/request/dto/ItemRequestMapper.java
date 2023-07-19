@@ -1,18 +1,30 @@
 package ru.practicum.shareit.request.dto;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 
-@Mapper
-public interface ItemRequestMapper {
-    ItemRequestMapper INSTANCE = Mappers.getMapper(ItemRequestMapper.class);
+@Component
+@RequiredArgsConstructor
+public class ItemRequestMapper {
+    private final ItemMapper itemMapper;
 
-    @Mapping(target = "requestorId", source = "requestor.id")
-    @Mapping(target = "requestorName", source = "requestor.name")
-    @Mapping(target = "items", ignore = true)
-    ItemRequestDto mapToDto(ItemRequest entity);
+    public ItemRequestDto mapToDto(ItemRequest itemRequest) {
+        if (itemRequest != null) {
+            return new ItemRequestDto(
+                    itemRequest.getId(),
+                    itemRequest.getDescription(),
+                    itemRequest.getCreated(),
+                    itemRequest.getRequestor().getId(),
+                    itemRequest.getRequestor().getName(),
+                    itemRequest.getItems() != null ?
+                    itemMapper.mapListToItemDto(itemRequest.getItems()) : null
+            );
+        } else {
+            return null;
+        }
+    }
 }
 
 

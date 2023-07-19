@@ -14,13 +14,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 
 	<name>ShareIt</name>
-	<description>Шеринг от Яндекс Практикум ТЗ№1.</description>
+	<description>Шеринг от Яндекс Практикум ТЗ№3, Sprint 15.</description>
 	<properties>
 		<java.version>11</java.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-<!--		<junit.version>4.12</junit.version>-->
-<!--		<junit.jupiter.version>5.5.2</junit.jupiter.version>-->
-<!--		<junit.vintage.version>5.5.2</junit.vintage.version>-->
 	</properties>
 
 	<dependencies>

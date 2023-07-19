@@ -48,6 +48,7 @@ public class ItemDbService implements ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final ItemRequestRepository itemRequestRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public List<ItemDtoWithComments> findByOwnerId(Integer ownerId, int from, int size) {
@@ -57,7 +58,7 @@ public class ItemDbService implements ItemService {
 
         return itemRepository.findByOwnerIdOrderById(ownerId, page).stream()
                 .map(i -> itemMapperWithComments.mapToItemDto(i,
-                                i.getOwner(), i.getItemRequest(), ownerId))
+                        i.getOwner(), i.getItemRequest(), ownerId))
                 .collect(Collectors.toList());
     }
 
@@ -172,7 +173,7 @@ public class ItemDbService implements ItemService {
 
         log.debug("Comment has been created: {}", comment);
 
-        return CommentMapper.INSTANCE.mapToDto(commentRepository.save(comment));
+        return commentMapper.mapToDto(commentRepository.save(comment));
     }
 
     @Override

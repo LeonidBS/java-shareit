@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.model.User;
 public class ItemMapperWithComments {
     private final BookingDbService bookingService;
     private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     public ItemDtoWithComments mapToItemDto(Item item, User owner, ItemRequest request, Integer userId) {
 
@@ -29,7 +30,7 @@ public class ItemMapperWithComments {
                             bookingService.findLastBookingByItemId(item.getId()) : null,
                     owner.getId().equals(userId) ?
                             bookingService.findNextBookingByItemId(item.getId()) : null,
-                    CommentMapper.INSTANCE.mapListToDto(commentRepository
+                    commentMapper.mapListToDto(commentRepository
                             .findByItemId(item.getId())),
                     owner.getId(),
                     owner.getName(),
@@ -45,7 +46,7 @@ public class ItemMapperWithComments {
                     item.getAvailable(),
                     null,
                     null,
-                    CommentMapper.INSTANCE.mapListToDto(commentRepository
+                    commentMapper.mapListToDto(commentRepository
                             .findByItemId(item.getId())),
                     null,
                     null,

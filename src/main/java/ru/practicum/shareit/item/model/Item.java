@@ -38,7 +38,7 @@ public class Item {
     @ToString.Exclude
     private User owner;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "request_id")
     @ToString.Exclude
     private ItemRequest itemRequest;
