@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ErrorHandler {
 
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handHibernateException(final DataIntegrityViolationException e) {
@@ -27,7 +26,7 @@ public class ErrorHandler {
 
     @ResponseBody
     @ExceptionHandler(ConstraintViolationException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ValidationErrorResponse onConstraintValidationException(
             ConstraintViolationException e
     ) {
@@ -63,12 +62,6 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleAccessDeniedException(final AccessDeniedException e) {
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleEntityUniqException(final EntityUniqException e) {
         return new ErrorResponse(e.getMessage());
     }
 

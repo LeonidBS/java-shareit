@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoForItem;
-import ru.practicum.shareit.booking.dto.BookingDtoInput;
-import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
@@ -27,7 +24,6 @@ import ru.practicum.shareit.user.service.UserService;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -35,7 +31,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookingDbService implements BookingService {
     private final BookingRepository bookingRepository;
+
     private final ItemRepository itemRepository;
+
     @Qualifier("dbService")
     private final UserService userService;
 
@@ -112,14 +110,12 @@ public class BookingDbService implements BookingService {
 
     @Override
     public BookingDto findByIdWithValidation(Integer bookingId, Integer userId) {
-        Optional<Booking> optionalBooking = bookingRepository.findById(bookingId);
 
-        if (optionalBooking.isEmpty()) {
-            log.error("Booking with ID {} has not been found", bookingId);
-            throw new IdNotFoundException("There is no Booking with ID: " + bookingId);
-        }
-
-        Booking booking = optionalBooking.get();
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> {
+                    log.error("Booking with ID {} has not been found", bookingId);
+                    return new IdNotFoundException("There is no Booking with ID: " + bookingId);
+                });
 
         if (!booking.getItem().getOwner().getId().equals(userId)
                 && !booking.getBooker().getId().equals(userId)) {
@@ -134,18 +130,15 @@ public class BookingDbService implements BookingService {
     @Transactional
     public BookingDto create(BookingDtoInput bookingDtoInput, Integer bookerId) {
         User booker = UserMapper.mapToUser(userService.findById(bookerId));
-        Optional<Item> optionalItem = itemRepository.findById(bookingDtoInput.getItemId());
 
-
-        if (optionalItem.isEmpty()) {
-            log.error("Item with ID {} is not exist", bookingDtoInput.getItemId());
-            throw new IdNotFoundException("There is not Item with ID " + bookingDtoInput.getItemId());
-        }
-
-        Item item = optionalItem.get();
+        Item item = itemRepository.findById(bookingDtoInput.getItemId())
+                .orElseThrow(() -> {
+                    log.error("Item with ID {} is not exist", bookingDtoInput.getItemId());
+                    return new IdNotFoundException("There is not Item with ID " + bookingDtoInput.getItemId());
+                });
 
         if (!item.getAvailable()) {
-            log.error("Item with ID {} is available", bookingDtoInput.getItemId());
+            log.error("Item with ID {} is not available", bookingDtoInput.getItemId());
             throw new MyValidationException("Item (ID " + bookingDtoInput.getItemId() + " is not available");
         }
 
@@ -167,44 +160,42 @@ public class BookingDbService implements BookingService {
                 .status(BookingStatus.WAITING)
                 .build();
 
-        bookingRepository.save(booking);
+
         log.debug("Booking has been created: {}", booking);
 
-        return BookingMapper.mapToBookingDto(booking);
+        return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
     }
 
     @Override
     @Transactional
     public BookingDto patchBooking(Integer bookingId, Boolean approved, Integer ownerId) {
-        Optional<Booking> optionalExistedBooking = bookingRepository.findById(bookingId);
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> {
+                    log.error("Booking with ID {} has not been found", bookingId);
+                    return new IdNotFoundException("There is no Booking with ID: " + bookingId);
+                });
 
-        if (optionalExistedBooking.isEmpty()) {
-            log.error("Booking with ID {} has not been found", bookingId);
-            throw new IdNotFoundException("There is no Booking with ID: " + bookingId);
-        }
-
-        if (!optionalExistedBooking.get().getItem().getOwner().getId().equals(ownerId)) {
+        if (!booking.getItem().getOwner().getId().equals(ownerId)) {
             log.error("Access denied for ownerId {}", ownerId);
             throw new AccessDeniedException("Access denied for ownerId " + ownerId);
         }
 
-        if (optionalExistedBooking.get().getStatus().equals(BookingStatus.APPROVED)) {
+        if (booking.getStatus().equals(BookingStatus.APPROVED)) {
             log.error("Booking has been approved already");
             throw new MyValidationException("Booking has been approved already");
         }
 
-        if (!optionalExistedBooking.get().getStatus().equals(BookingStatus.WAITING)) {
+        if (!booking.getStatus().equals(BookingStatus.WAITING)) {
             log.error("Booking has not been requested");
             throw new ApprovingException("Booking has not been requested");
         }
 
-        Booking booking = optionalExistedBooking.get();
         if (approved) {
             booking.setStatus(BookingStatus.APPROVED);
-            log.debug("Booking {} has been approved", optionalExistedBooking.get());
+            log.debug("Booking {} has been approved", booking);
         } else {
             booking.setStatus(BookingStatus.REJECTED);
-            log.debug("Booking {} has been rejected", optionalExistedBooking.get());
+            log.debug("Booking {} has been rejected", booking);
         }
 
         return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
@@ -213,14 +204,17 @@ public class BookingDbService implements BookingService {
     @Override
     @Transactional
     public BookingDto update(BookingDtoInput bookingDtoInput) {
-        Optional<Booking> optionalExistedBooking = bookingRepository.findById(bookingDtoInput.getId());
+        Booking booking = bookingRepository.findById(bookingDtoInput.getId())
+                .orElseThrow(() -> {
+                    log.error("Booking with ID {} has not been found", bookingDtoInput);
+                    return new IdNotFoundException("There is no Booking with ID: " + bookingDtoInput.getId());
+                });
 
-        if (optionalExistedBooking.isEmpty()) {
-            log.error("Booking {} has not been found", bookingDtoInput);
-            throw new IdNotFoundException("There is no Booking " + bookingDtoInput);
-        }
+        booking.setStart(bookingDtoInput.getStart());
+        booking.setEnd(bookingDtoInput.getEnd());
+        booking.setItem(itemRepository.findById(bookingDtoInput.getItemId()).get());
 
-        return BookingMapper.mapToBookingDto(bookingRepository.save(optionalExistedBooking.get()));
+        return BookingMapper.mapToBookingDto(bookingRepository.save(booking));
     }
 
     @Override
@@ -238,20 +232,20 @@ public class BookingDbService implements BookingService {
     @Override
     public BookingDtoForItem findLastBookingByItemId(Integer itemId) {
 
-        return bookingRepository
+        return BookingMapperForItem.INSTANCE.mapToDto(bookingRepository
                 .findFirstBookingByItemIdAndStatusAndStartLessThanOrderByStartDesc(
                         itemId,
                         BookingStatus.APPROVED,
-                        LocalDateTime.now());
+                        LocalDateTime.now()));
     }
 
     @Override
     public BookingDtoForItem findNextBookingByItemId(Integer itemId) {
 
-        return bookingRepository
+        return BookingMapperForItem.INSTANCE.mapToDto(bookingRepository
                 .findFirstBookingByItemIdAndStatusAndStartGreaterThanOrderByStart(
                         itemId,
                         BookingStatus.APPROVED,
-                        LocalDateTime.now());
+                        LocalDateTime.now()));
     }
 }

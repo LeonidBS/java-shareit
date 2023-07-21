@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.List;
+
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Integer> {
 
@@ -29,9 +31,11 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
             "AND item.available = TRUE")
     Page<Item> findBySearchText(String text, Pageable page);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Item item " +
             "SET item.available=false, item.owner=null " +
             "WHERE item.owner.id = ?1 ")
     void updateItemsAsIsNotAvailableByUserId(Integer userId);
+
+    List<Item> findByItemRequestId(Integer itemRequestId);
 }

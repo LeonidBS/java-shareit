@@ -1,18 +1,28 @@
 package ru.practicum.shareit.request.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.util.List;
 
-public interface ItemRequestRepository {
+@Repository
+public interface ItemRequestRepository extends JpaRepository<ItemRequest, Integer> {
 
-    List<ItemRequest> findAll();
+    List<ItemRequest> findByRequestorIdOrderByCreatedDesc(Integer requestorId);
 
-    ItemRequest findById(Integer id);
+    Page<ItemRequest> findByRequestorIdNotOrderByCreatedDesc(Integer requestorId, Pageable page);
 
-    ItemRequest create(ItemRequest itemRequest);
 
-    ItemRequest update(ItemRequest itemRequest);
-
-    ItemRequest delete(Integer id);
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("UPDATE ItemRequest ir " +
+            "SET ir.requestor=null " +
+            "WHERE ir.requestor.id = ?1 ")
+    void updateRequestsByDeletingUserId(Integer userId);
 }

@@ -7,9 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.model.SearchBookingStatus;
-import ru.practicum.shareit.booking.service.BookingDbService;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j
@@ -18,28 +21,30 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class BookingController {
-    private final BookingDbService bookingService;
+    private final BookingService bookingService;
 
     @GetMapping
     public List<BookingDto> findAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer bookerId,
-                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
-        /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+                                                       @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
+                                                       @Valid @PositiveOrZero(message
+                                                               = "page should be positive or 0")
+                                                           @RequestParam(defaultValue = "0") Integer from,
+                                                       @Valid @Positive(message
+                                                               = "size should be positive number")
+                                                           @RequestParam(defaultValue = "20") Integer size) {
 
         return bookingService.findAllByBookerIdAndStatus(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllByOwnerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
-                                                      @RequestParam(defaultValue = "ALL") SearchBookingStatus state) {
-    /*
-     Поскольку в запросе пока нет таких параметров
-     */
-        int from = 0;
-        int size = 10;
+                                                      @RequestParam(defaultValue = "ALL") SearchBookingStatus state,
+                                                      @Valid @PositiveOrZero(message
+                                                              = "page should be positive or 0")
+                                                          @RequestParam(defaultValue = "0") Integer from,
+                                                      @Valid @Positive(message
+                                                              = "size should be positive number")
+                                                          @RequestParam(defaultValue = "20") Integer size) {
 
         return bookingService.findAllByOwnerIdAndStatus(ownerId, state, from, size);
     }

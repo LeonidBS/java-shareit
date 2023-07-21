@@ -1,18 +1,12 @@
 package ru.practicum.shareit.request.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
-import java.time.LocalDate;
-
-/**
- * TODO Sprint add-item-requests.
- */
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "item_requests")
@@ -24,25 +18,29 @@ import java.time.LocalDate;
 @ToString
 public class ItemRequest {
 
+    public ItemRequest(Integer id, String description, LocalDateTime created, User requestor) {
+        this.id = id;
+        this.description = description;
+        this.created = created;
+        this.requestor = requestor;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @PositiveOrZero
     private Integer id;
 
     @Column(nullable = false)
-    @NotNull(message = "Parameter name is NULL")
-    @Size(max = 200, message = "length of description is more then 200 symbols")
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "requested")
+    private LocalDateTime created;
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id")
     @ToString.Exclude
-    @NotNull(message = "Parameter name is NULL")
     private User requestor;
 
-    @Column(name = "requested")
-    @NotNull(message = "Parameter name is NULL")
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate requestDate;
-
+    @OneToMany(mappedBy = "itemRequest")
+    @ToString.Exclude
+    private List<Item> items;
 }

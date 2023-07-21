@@ -1,33 +1,26 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.PositiveOrZero;
-import javax.validation.constraints.Size;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
-@AllArgsConstructor
 @Builder
 public class ItemRequestDto {
-
-    @PositiveOrZero
     private Integer id;
 
-    @Size(max = 200, message = "length of description is more then 200 symbols")
-    private String description;
+   private String description;
 
-    @NotBlank
-    @Size(max = 200, message = "length of description is more then 200 symbols")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS")
+    private LocalDateTime created;
+
+    private Integer requestorId;
+
     private String requestorName;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate requestDate;
+    List<ItemDto>  items;
 }
