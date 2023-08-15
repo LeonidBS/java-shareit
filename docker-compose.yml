@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  gateway:
+    build:
+      context: gateway
+      dockerfile: Dockerfile.gateway
+    image: shareit-gateway:latest-gateway
+    container_name: shareit-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    environment:
+      - SHAREIT_SERVER_URL=http://server:9090
+
+  server:
+    build:
+      context: server
+      dockerfile: Dockerfile.server
+    image: shareit-server:latest-server
+    container_name: shareit-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=shareit
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - DB_HOST=db
+      - DB_PORT=5432
+
+  db:
+    image: postgres:13.7-alpine
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: shareit-db
+    volumes:
+      - /var/lib/postgresql/data/
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=shareit
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
