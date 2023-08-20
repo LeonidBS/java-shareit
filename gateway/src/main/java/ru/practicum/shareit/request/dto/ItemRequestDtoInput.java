@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.validation.ValidationGroups;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ItemRequestDtoInput {
     @NotNull(message = "Parameter name is NULL",
             groups = ValidationGroups.Create.class)
@@ -22,5 +24,4 @@ public class ItemRequestDtoInput {
 
     @FutureOrPresent
     private LocalDateTime requestDate;
-
 }
