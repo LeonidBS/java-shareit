@@ -3,8 +3,8 @@ services:
   gateway:
     build:
       context: gateway
-      dockerfile: Dockerfile.gateway
-    image: shareit-gateway:latest-gateway
+      dockerfile: Dockerfile
+    image: shareit-gateway:latest
     container_name: shareit-gateway
     ports:
       - "8080:8080"
@@ -16,8 +16,8 @@ services:
   server:
     build:
       context: server
-      dockerfile: Dockerfile.server
-    image: shareit-server:latest-server
+      dockerfile: Dockerfile
+    image: shareit-server:latest
     container_name: shareit-server
     ports:
       - "9090:9090"

@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookItemRequestDto {
-	private long itemId;
+public class BookingDtoInput {
+	private Integer itemId;
 	@FutureOrPresent
 	private LocalDateTime start;
 	@Future

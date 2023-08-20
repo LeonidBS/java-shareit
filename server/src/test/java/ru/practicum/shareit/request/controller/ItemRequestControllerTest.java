@@ -118,7 +118,7 @@ class ItemRequestControllerTest {
         int requestID = 1;
         String itemsString = mapper.writeValueAsString(List.of(itemDto));
 
-        when(itemRequestService.getById(requestID, userID))
+        when(itemRequestService.findById(requestID, userID))
                 .thenReturn(itemRequestDto);
 
         mvc.perform(MockMvcRequestBuilders.get("/requests/" + requestID)

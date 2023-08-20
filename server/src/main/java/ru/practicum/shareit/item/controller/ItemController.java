@@ -48,7 +48,7 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getBySearchText(@RequestParam(required = false) String text,
+    public List<ItemDto> findBySearchText(@RequestParam(required = false) String text,
                                          @Valid @PositiveOrZero(message
                                                  = "page should be positive or 0")
                                          @RequestParam(defaultValue = "0") Integer from,
@@ -81,6 +81,4 @@ public class ItemController {
 
         return itemService.update(itemDtoInput, ownerId, id);
     }
-
-
 }

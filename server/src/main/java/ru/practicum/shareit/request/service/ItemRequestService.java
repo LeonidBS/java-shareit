@@ -13,7 +13,7 @@ public interface ItemRequestService {
 
     List<ItemRequestDto> findAllExceptOwn(Integer requestorId, Integer from, Integer size);
 
-    ItemRequestDto getById(Integer requestId, Integer userId);
+    ItemRequestDto findById(Integer requestId, Integer userId);
 
     ItemRequestDto create(ItemRequestDtoInput dtoInput, Integer requestorId);
 

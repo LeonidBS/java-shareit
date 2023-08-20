@@ -186,7 +186,7 @@ class ItemRequestDbServiceUnitTest {
         when(itemRequestRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(IdNotFoundException.class,
-                () -> itemRequestDbService.getById(id, userId));
+                () -> itemRequestDbService.findById(id, userId));
     }
 
     @Test

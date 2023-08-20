@@ -42,10 +42,10 @@ public class ItemRequestController {
     }
 
     @GetMapping("/{requestId}")
-    public ItemRequestDto getById(@PathVariable Integer requestId,
-                                  @RequestHeader("X-Sharer-User-Id") Integer userId) {
+    public ItemRequestDto findById(@PathVariable Integer requestId,
+                                   @RequestHeader("X-Sharer-User-Id") Integer userId) {
 
-        return itemRequestService.getById(requestId, userId);
+        return itemRequestService.findById(requestId, userId);
     }
 
     @PostMapping

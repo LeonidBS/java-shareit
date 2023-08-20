@@ -53,7 +53,7 @@ public class ItemRequestDbService implements ItemRequestService {
     }
 
     @Override
-    public ItemRequestDto getById(Integer requestId, Integer userId) {
+    public ItemRequestDto findById(Integer requestId, Integer userId) {
         userService.findById(userId);
         return itemRequestMapper
                 .mapToDto(itemRequestRepository.findById(requestId)
