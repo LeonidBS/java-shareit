@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
@@ -24,7 +23,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -115,46 +113,6 @@ class UserControllerTest {
 
     @SneakyThrows
     @Test
-    void createWhenNameEmpty() {
-        UserDto newUserDto = UserDto.builder()
-                .name("")
-                .email("dto@user.com")
-                .build();
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(newUserDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(userService, never()).create(newUserDto);
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenEmailNotCorrect() {
-        UserDto newUserDto = UserDto.builder()
-                .name("dto")
-                .email("dto++@user.com")
-                .build();
-
-        mvc.perform(post("/users")
-                        .content(mapper.writeValueAsString(newUserDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(userService, never()).create(newUserDto);
-    }
-
-    @SneakyThrows
-    @Test
     void updateWhenUserCorrect() {
         User updatedUser = User.builder()
                 .id(1)
@@ -176,7 +134,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name", is(updatedUserDto.getName())))
                 .andExpect(jsonPath("$.email", is(updatedUserDto.getEmail())));
     }
-
 
     @SneakyThrows
     @Test
@@ -201,26 +158,6 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.id", is(updatedDto.getId()), Integer.class))
                 .andExpect(jsonPath("$.name", is(updatedDto.getName())))
                 .andExpect(jsonPath("$.email", is(dto.getEmail())));
-    }
-
-    @SneakyThrows
-    @Test
-    void updateByPatchWhenEmailNotCorrect() {
-        UserDto newUserDto = UserDto.builder()
-                .name("dto")
-                .email("dto++@user.com")
-                .build();
-
-        mvc.perform(patch("/users/1")
-                        .content(mapper.writeValueAsString(newUserDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(userService, never()).create(newUserDto);
     }
 
     @SneakyThrows

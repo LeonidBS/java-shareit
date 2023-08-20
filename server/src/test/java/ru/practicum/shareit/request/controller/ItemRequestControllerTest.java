@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
@@ -27,8 +26,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -167,69 +164,6 @@ class ItemRequestControllerTest {
                 .andExpect(jsonPath("$.requestorId", is(requestorID)))
                 .andExpect(jsonPath("$.requestorName", is(requestor.getName())))
                 .andExpect(jsonPath("$.created", containsString(created.toString())));
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenDescriptionIsEmptyThrowException() {
-        int requestorID = 1;
-        ItemRequestDtoInput itemRequestDtoInput = ItemRequestDtoInput.builder()
-                .description("")
-                .build();
-
-        mvc.perform(post("/requests")
-                        .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemRequestService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenDescriptionIsNullThrowException() {
-        int requestorID = 1;
-        ItemRequestDtoInput itemRequestDtoInput = ItemRequestDtoInput.builder()
-                .build();
-
-        mvc.perform(post("/requests")
-                        .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemRequestService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenDateInPastThenThrowException() {
-        int requestorID = 1;
-        ItemRequestDtoInput itemRequestDtoInput = ItemRequestDtoInput.builder()
-                .description("")
-                .requestDate(LocalDateTime.now().minusMonths(5))
-                .build();
-
-        mvc.perform(post("/requests")
-                        .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemRequestService, never()).create(any(), anyInt());
     }
 
     @SneakyThrows

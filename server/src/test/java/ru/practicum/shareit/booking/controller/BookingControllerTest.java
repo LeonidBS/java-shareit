@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -231,92 +230,6 @@ class BookingControllerTest {
                         .<String>hasToString(itemDtoForBookingWithRequest.toString())))
                 .andExpect(jsonPath("$.booker", Matchers
                         .<String>hasToString(booker.toString())));
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenStartInPastThenThrowException() {
-        int bookerId = 4;
-
-        BookingDtoInput bookingDtoInput = BookingDtoInput.builder()
-                .start(futureBookingDto.getStart().minusYears(10))
-                .end(futureBookingDto.getEnd())
-                .itemId(futureBookingDto.getItem().getId())
-                .build();
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenStartIIsNullThenThrowException() {
-        int bookerId = 4;
-
-        BookingDtoInput bookingDtoInput = BookingDtoInput.builder()
-                .end(futureBookingDto.getEnd())
-                .itemId(futureBookingDto.getItem().getId())
-                .build();
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenEndIsNullThenThrowException() {
-        int bookerId = 4;
-
-        BookingDtoInput bookingDtoInput = BookingDtoInput.builder()
-                .start(futureBookingDto.getStart().minusYears(10))
-                .itemId(futureBookingDto.getItem().getId())
-                .build();
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenEndInPastThenThrowException() {
-        int bookerId = 4;
-
-        BookingDtoInput bookingDtoInput = BookingDtoInput.builder()
-                .start(futureBookingDto.getStart())
-                .end(futureBookingDto.getEnd().minusYears(10))
-                .itemId(futureBookingDto.getItem().getId())
-                .build();
-
-        mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
     }
 
     @SneakyThrows

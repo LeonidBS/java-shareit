@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.practicum.shareit.auxiliary.InstanceFactory;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -36,9 +35,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -225,124 +222,6 @@ class ItemControllerTest {
 
     @SneakyThrows
     @Test
-    void createWhenNameIsEmptyThenThrowException() {
-        int ownerId = 2;
-        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
-                .name("")
-                .description("good item")
-                .available(true)
-                .requestId(1)
-                .build();
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenNameIsNullThenThrowException() {
-        int ownerId = 2;
-        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
-                .description("good item")
-                .available(true)
-                .requestId(1)
-                .build();
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenDescriptionIsNullThenThrowException() {
-        int ownerId = 2;
-        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
-                .name("item")
-                .available(true)
-                .requestId(1)
-                .build();
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenDescriptionIsEmptyThenThrowException() {
-        int ownerId = 2;
-        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
-                .name("item")
-                .description("")
-                .available(true)
-                .requestId(1)
-                .build();
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createWhenAvailableIsNullThenThrowException() {
-        int ownerId = 2;
-        ItemDtoInput itemDtoInput = ItemDtoInput.builder()
-                .name("item")
-                .description("good item")
-                .requestId(1)
-                .build();
-
-        mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-
-    @SneakyThrows
-    @Test
     void createCommentWhenTextCorrect() {
         int authorId = 3;
         int itemId = 1;
@@ -369,51 +248,6 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.authorName", is(author.getName())))
                 .andExpect(jsonPath("$.created", containsString(commentDtoInput
                         .getCreated().toString())));
-    }
-
-    @SneakyThrows
-    @Test
-    void createCommentWhenTextEmptyThrowException() {
-        int authorId = 3;
-        int itemId = 1;
-        CommentDtoInput commentDtoInput = CommentDtoInput.builder()
-                .text("")
-                .created(comment.getCreated())
-                .build();
-
-        mvc.perform(post("/items/" + itemId + "/comment")
-                        .content(mapper.writeValueAsString(commentDtoInput))
-                        .header("X-Sharer-User-Id", authorId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
-    }
-
-    @SneakyThrows
-    @Test
-    void createCommentWhenTextNullThenThrowException() {
-        int authorId = 3;
-        int itemId = 1;
-        CommentDtoInput commentDtoInput = CommentDtoInput.builder()
-                .created(comment.getCreated())
-                .build();
-
-        mvc.perform(post("/items/" + itemId + "/comment")
-                        .content(mapper.writeValueAsString(commentDtoInput))
-                        .header("X-Sharer-User-Id", authorId)
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result
-                        .getResolvedException() instanceof MethodArgumentNotValidException));
-
-        verify(itemService, never()).create(any(), anyInt());
     }
 
     @SneakyThrows
