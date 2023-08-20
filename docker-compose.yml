@@ -22,7 +22,8 @@ services:
     ports:
       - "9090:9090"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - DB_NAME=shareit
       - POSTGRES_USER=root
@@ -31,10 +32,7 @@ services:
       - DB_PORT=5432
 
   db:
-    image: postgres:13.7-alpine
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    image: postgres:15.3-alpine
     container_name: shareit-db
     volumes:
       - /var/lib/postgresql/data/
@@ -44,3 +42,8 @@ services:
       - POSTGRES_DB=shareit
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
