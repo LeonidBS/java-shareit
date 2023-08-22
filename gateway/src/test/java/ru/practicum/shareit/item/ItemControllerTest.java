@@ -20,6 +20,7 @@ import ru.practicum.shareit.item.dto.ItemDtoInput;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,8 @@ class ItemControllerTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
     private MockMvc mvc;
+
+    private static final String USER_ID = "X-Sharer-User-Id";
 
     @BeforeEach
     void setUp() {
@@ -61,7 +64,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -81,7 +84,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -102,7 +105,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -123,7 +126,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -145,7 +148,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -166,7 +169,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDtoInput))
-                        .header("X-Sharer-User-Id", ownerId)
+                        .header(USER_ID, ownerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -183,7 +186,8 @@ class ItemControllerTest {
         int itemId = 1;
         CommentDtoInput commentDtoInput = CommentDtoInput.builder()
                 .text("comment")
-                .created(LocalDateTime.now())
+                .created(LocalDateTime.parse(LocalDateTime.now()
+                        .format(DateTimeFormatter.ofPattern(CommentDtoInput.DATE_PATTERN))))
                 .build();
 
         when(itemClient.createComment(authorId, itemId, commentDtoInput))
@@ -191,7 +195,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items/" + itemId + "/comment")
                         .content(mapper.writeValueAsString(commentDtoInput))
-                        .header("X-Sharer-User-Id", authorId)
+                        .header(USER_ID, authorId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -210,7 +214,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items/" + itemId + "/comment")
                         .content(mapper.writeValueAsString(commentDtoInput))
-                        .header("X-Sharer-User-Id", authorId)
+                        .header(USER_ID, authorId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -230,7 +234,7 @@ class ItemControllerTest {
 
         mvc.perform(post("/items/" + itemId + "/comment")
                         .content(mapper.writeValueAsString(commentDtoInput))
-                        .header("X-Sharer-User-Id", authorId)
+                        .header(USER_ID, authorId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

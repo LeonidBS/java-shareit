@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDtoInput;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 @Controller
@@ -21,9 +22,11 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Object> getAll(@RequestParam(name = "from", defaultValue = "0")
-                                         @PositiveOrZero Integer from,
+                                         @PositiveOrZero(message
+                                                 = "page should be positive or 0") Integer from,
                                          @RequestParam(name = "size", defaultValue = "20")
-                                         @PositiveOrZero Integer size) {
+                                         @Positive(message
+                                                 = "size should be positive number") Integer size) {
         log.info("Get Users with from={}, size={}", from, size);
 
         return userClient.getUsers(from, size);
@@ -45,7 +48,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> update(@RequestBody UserDtoInput userRequestDto) {
+    public ResponseEntity<Object> update(@RequestBody @Validated(ValidationGroups.Create.class) UserDtoInput userRequestDto) {
         log.info("Updating User {}", userRequestDto);
 
         return userClient.updateUser(userRequestDto);

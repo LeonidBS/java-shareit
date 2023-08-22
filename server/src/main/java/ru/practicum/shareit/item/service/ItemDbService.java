@@ -26,7 +26,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +99,7 @@ public class ItemDbService implements ItemService {
                     .orElseThrow(() -> new IdNotFoundException("ItemRequest not found"));
         }
 
-        @Valid Item item = Item.builder()
+        Item item = Item.builder()
                 .name(itemDtoInput.getName())
                 .description(itemDtoInput.getDescription())
                 .available(itemDtoInput.getAvailable())

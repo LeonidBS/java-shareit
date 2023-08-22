@@ -36,10 +36,12 @@ class BookingControllerTest {
 
     private MockMvc mvc;
 
-    LocalDateTime futureStartDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(1)
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
-    LocalDateTime futureEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(2)
-            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
+    private final LocalDateTime futureStartDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(1)
+            .format(DateTimeFormatter.ofPattern(BookingDtoInput.DATE_PATTERN)));
+    private final LocalDateTime futureEndDateTime = LocalDateTime.parse(LocalDateTime.now().plusMonths(2)
+            .format(DateTimeFormatter.ofPattern(BookingDtoInput.DATE_PATTERN)));
+
+    private static final String USER_ID = "X-Sharer-User-Id";
 
     @BeforeEach
     void setUp() {
@@ -62,7 +64,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -82,7 +84,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -103,7 +105,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -124,7 +126,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -146,7 +148,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -168,7 +170,7 @@ class BookingControllerTest {
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDtoInput))
-                        .header("X-Sharer-User-Id", bookerId)
+                        .header(USER_ID, bookerId)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

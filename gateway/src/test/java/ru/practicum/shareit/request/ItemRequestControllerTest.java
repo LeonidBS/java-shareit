@@ -37,6 +37,8 @@ class ItemRequestControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
     private MockMvc mvc;
 
+    private static final String USER_ID = "X-Sharer-User-Id";
+
     @BeforeEach
     void setUp() {
         mapper.registerModule(new JavaTimeModule());
@@ -58,7 +60,7 @@ class ItemRequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
+                        .header(USER_ID, requestorID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -75,7 +77,7 @@ class ItemRequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
+                        .header(USER_ID, requestorID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -93,7 +95,7 @@ class ItemRequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
+                        .header(USER_ID, requestorID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -113,7 +115,7 @@ class ItemRequestControllerTest {
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDtoInput))
-                        .header("X-Sharer-User-Id", requestorID)
+                        .header(USER_ID, requestorID)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

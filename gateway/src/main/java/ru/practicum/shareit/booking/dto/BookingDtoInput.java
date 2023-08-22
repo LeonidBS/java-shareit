@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,12 +17,18 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class BookingDtoInput {
-	@Positive
-	private Integer itemId;
-	@FutureOrPresent
-	@NotNull
-	private LocalDateTime start;
-	@Future
-	@NotNull
-	private LocalDateTime end;
+    public static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+
+    @Positive
+    private Integer itemId;
+
+    @FutureOrPresent(message = "Date should be in future or present")
+    @NotNull(message = "Parameter name is empty")
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDateTime start;
+
+    @Future(message = "Date should be in future")
+    @NotNull(message = "Parameter name is empty")
+    @JsonFormat(pattern = DATE_PATTERN)
+    private LocalDateTime end;
 }

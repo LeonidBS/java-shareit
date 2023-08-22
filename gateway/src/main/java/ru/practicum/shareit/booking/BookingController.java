@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.StatusValidationException;
-import ru.practicum.shareit.validation.ValidationGroups;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -22,12 +20,17 @@ import javax.validation.constraints.PositiveOrZero;
 @Validated
 public class BookingController {
     private final BookingClient bookingClient;
+    private static final String USER_ID = "X-Sharer-User-Id";
 
     @GetMapping
-    public ResponseEntity<Object> getAllByBookerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ResponseEntity<Object> getAllByBookerIdAndStatus(@RequestHeader(USER_ID) Integer userId,
                                                             @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                                            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                                            @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+                                                            @Validated @RequestParam(name = "from", defaultValue = "0")
+                                                            @PositiveOrZero(message
+                                                                    = "page should be positive or 0") Integer from,
+                                                            @Validated @RequestParam(name = "size", defaultValue = "20")
+                                                            @Positive(message
+                                                                    = "size should be positive number") Integer size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new StatusValidationException("Unknown state: " + stateParam));
         log.info("Get Booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
@@ -36,14 +39,14 @@ public class BookingController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getAllByOwnerIdAndStatus(@RequestHeader("X-Sharer-User-Id") Integer ownerId,
+    public ResponseEntity<Object> getAllByOwnerIdAndStatus(@RequestHeader(USER_ID) Integer ownerId,
                                                            @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                                           @Valid @PositiveOrZero(message
-                                                                   = "page should be positive or 0")
-                                                           @RequestParam(defaultValue = "0") Integer from,
-                                                           @Valid @Positive(message
-                                                                   = "size should be positive number")
-                                                           @RequestParam(defaultValue = "20") Integer size) {
+                                                           @RequestParam(name = "from", defaultValue = "0")
+                                                           @PositiveOrZero(message
+                                                                   = "page should be positive or 0") Integer from,
+                                                           @RequestParam(name = "size", defaultValue = "20")
+                                                           @Positive(message
+                                                                   = "size should be positive number") Integer size) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new StatusValidationException("Unknown state: " + stateParam));
         log.info("Get Booking with state {}, ownerId={}, from={}, size={}", stateParam, ownerId, from, size);
@@ -52,7 +55,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    public ResponseEntity<Object> getBooking(@RequestHeader(USER_ID) Integer userId,
                                              @PathVariable Long bookingId) {
         log.info("Get Booking {}, userId={}", bookingId, userId);
 
@@ -60,24 +63,26 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> createBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
-                                                @RequestBody @Valid BookingDtoInput requestDto) {
-        log.info("Creating Booking {}, userId={}", requestDto, userId);
+    public ResponseEntity<Object> createBooking(@RequestHeader(USER_ID) @Positive(message
+            = "size should be positive number") Integer userId,
+                                                @RequestBody @Validated BookingDtoInput bookingDtoInputDto) {
+        log.info("Creating Booking {}, userId={}", bookingDtoInputDto, userId);
 
-        return bookingClient.createBooking(userId, requestDto);
+        return bookingClient.createBooking(userId, bookingDtoInputDto);
     }
 
     @PatchMapping("/{bookingId}")
-    public ResponseEntity<Object> patchBookingStatus(@PathVariable Integer bookingId,
+    public ResponseEntity<Object> patchBookingStatus(@PathVariable @Positive(message
+            = "size should be positive number") Integer bookingId,
                                                      @RequestParam(name = "approved") Boolean approved,
-                                                     @RequestHeader("X-Sharer-User-Id") Integer ownerId) {
+                                                     @RequestHeader(USER_ID) Integer ownerId) {
         log.info("Approving {} Booking with ID={} and ownerId={}", approved, bookingId, ownerId);
 
         return bookingClient.patchBookingStatus(ownerId, bookingId, approved);
     }
 
     @PutMapping
-    public ResponseEntity<Object> updateBooking(@RequestBody @Validated(ValidationGroups.Create.class) BookingDtoInput bookingDtoInput) {
+    public ResponseEntity<Object> updateBooking(@RequestBody @Validated BookingDtoInput bookingDtoInput) {
         log.info("Updating Booking {}", bookingDtoInput);
 
         return bookingClient.updateBooking(bookingDtoInput);

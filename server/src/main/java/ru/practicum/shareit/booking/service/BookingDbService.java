@@ -21,7 +21,6 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -152,7 +151,7 @@ public class BookingDbService implements BookingService {
             throw new MyValidationException("Start must be before End");
         }
 
-        @Valid Booking booking = Booking.builder()
+        Booking booking = Booking.builder()
                 .start(bookingDtoInput.getStart())
                 .end(bookingDtoInput.getEnd())
                 .item(item)
