@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestDtoInput;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -52,7 +53,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> createRequest(
-            @RequestBody @Validated ItemRequestDtoInput itemRequestDtoInput,
+            @RequestBody @Valid ItemRequestDtoInput itemRequestDtoInput,
             @RequestHeader(USER_ID) Integer requestorId) {
         log.info("Create ItemRequest {} by requestorId={}", itemRequestDtoInput, requestorId);
 

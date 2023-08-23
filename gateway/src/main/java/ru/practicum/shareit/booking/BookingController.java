@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDtoInput;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.exception.StatusValidationException;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -25,10 +26,10 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<Object> getAllByBookerIdAndStatus(@RequestHeader(USER_ID) Integer userId,
                                                             @RequestParam(name = "state", defaultValue = "all") String stateParam,
-                                                            @Validated @RequestParam(name = "from", defaultValue = "0")
+                                                            @RequestParam(name = "from", defaultValue = "0")
                                                             @PositiveOrZero(message
                                                                     = "page should be positive or 0") Integer from,
-                                                            @Validated @RequestParam(name = "size", defaultValue = "20")
+                                                            @RequestParam(name = "size", defaultValue = "20")
                                                             @Positive(message
                                                                     = "size should be positive number") Integer size) {
         BookingState state = BookingState.from(stateParam)
@@ -65,7 +66,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> createBooking(@RequestHeader(USER_ID) @Positive(message
             = "size should be positive number") Integer userId,
-                                                @RequestBody @Validated BookingDtoInput bookingDtoInputDto) {
+                                                @RequestBody @Valid BookingDtoInput bookingDtoInputDto) {
         log.info("Creating Booking {}, userId={}", bookingDtoInputDto, userId);
 
         return bookingClient.createBooking(userId, bookingDtoInputDto);
@@ -82,7 +83,7 @@ public class BookingController {
     }
 
     @PutMapping
-    public ResponseEntity<Object> updateBooking(@RequestBody @Validated BookingDtoInput bookingDtoInput) {
+    public ResponseEntity<Object> updateBooking(@RequestBody @Valid BookingDtoInput bookingDtoInput) {
         log.info("Updating Booking {}", bookingDtoInput);
 
         return bookingClient.updateBooking(bookingDtoInput);

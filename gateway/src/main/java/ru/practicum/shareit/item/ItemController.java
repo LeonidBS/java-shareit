@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.dto.CommentDtoInput;
 import ru.practicum.shareit.item.dto.ItemDtoInput;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -76,7 +77,7 @@ public class ItemController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> updateItem(@RequestBody @Validated ItemDtoInput itemDtoInput, @PathVariable Integer id,
+    public ResponseEntity<Object> updateItem(@RequestBody @Valid ItemDtoInput itemDtoInput, @PathVariable Integer id,
                                              @RequestHeader(USER_ID) Integer ownerId) {
         log.info("Update Item {} with ID={} and ownerId={}", itemDtoInput, id, ownerId);
 

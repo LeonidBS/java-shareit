@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDtoInput;
 import ru.practicum.shareit.validation.ValidationGroups;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -55,7 +56,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Object> updateByPatch(@RequestBody @Validated UserDtoInput userRequestDto,
+    public ResponseEntity<Object> updateByPatch(@RequestBody @Valid UserDtoInput userRequestDto,
                                                 @PathVariable Integer id) {
         log.info("Updating User {}, userID {} ", userRequestDto, id);
 
